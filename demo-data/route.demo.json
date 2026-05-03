@@ -1,0 +1,19 @@
+{
+  "id": "demo-route",
+  "name": "Ruta Gaudi Barcelona",
+  "locale": "es-ES",
+  "startPointId": "point-1",
+  "pointOrder": [
+    "point-1",
+    "point-2",
+    "point-3",
+    "point-4"
+  ],
+  "totalPoints": 4,
+  "scoringRules": {
+    "photoValidated": 50,
+    "correctAnswer": 100,
+    "hintPenalty": -25,
+    "routeCompletionBonus": 150
+  }
+}

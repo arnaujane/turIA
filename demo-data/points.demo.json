@@ -1,0 +1,58 @@
+[
+  {
+    "id": "point-1",
+    "slug": "sagrada-familia",
+    "name": "Sagrada Familia",
+    "baseDescription": "La Sagrada Familia es el gran icono de Barcelona y el mejor punto de partida para una ruta sobre Antoni Gaudi. Su silueta monumental, sus torres reconocibles y su mezcla de espiritualidad y fantasia visual la convierten en una parada perfecta para abrir la demo con un tono asombroso pero facil de entender. El contenido generado debe transmitir admiracion, orientacion para el visitante y ganas de seguir explorando la obra de Gaudi por la ciudad.",
+    "coordinates": {
+      "lat": 41.4036,
+      "lng": 2.1744
+    },
+    "testImageRef": "samples/barcelona/sagrada-familia.jpg",
+    "expectedRiddle": "¿Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+    "correctAnswer": "Antoni Gaudi",
+    "nextPointId": "point-2"
+  },
+  {
+    "id": "point-2",
+    "slug": "casa-batllo",
+    "name": "Casa Batllo",
+    "baseDescription": "Casa Batllo es una de las fachadas mas llamativas del Passeig de Gracia y una parada ideal para resaltar el lado mas organico y creativo de Gaudi. Sus formas onduladas, su colorido y su asociacion con el modernismo barcelones invitan a una explicacion corta, visual y muy accesible. El contenido debe ayudar al usuario a identificar el edificio rapidamente y a sentir que esta avanzando por una ruta coherente por Barcelona.",
+    "coordinates": {
+      "lat": 41.3917,
+      "lng": 2.1649
+    },
+    "testImageRef": "samples/barcelona/casa-batllo.jpg",
+    "expectedRiddle": "¿En que paseo de Barcelona se encuentra la Casa Batllo dentro de esta ruta?",
+    "correctAnswer": "Passeig de Gracia",
+    "nextPointId": "point-3"
+  },
+  {
+    "id": "point-3",
+    "slug": "la-pedrera",
+    "name": "La Pedrera",
+    "baseDescription": "La Pedrera, tambien conocida como Casa Mila, representa una fase madura de la arquitectura de Gaudi y aporta continuidad cultural a la ruta. Su fachada de piedra, sus balcones y su caracter urbano permiten generar una audioguia breve que combine informacion clara con una sensacion de descubrimiento. El tono debe ser turistico, directo y apto para una demo que quiera sonar cuidada sin ser demasiado academica.",
+    "coordinates": {
+      "lat": 41.3953,
+      "lng": 2.1619
+    },
+    "testImageRef": "samples/barcelona/la-pedrera.jpg",
+    "expectedRiddle": "¿Como se conoce popularmente la Casa Mila en esta ruta?",
+    "correctAnswer": "La Pedrera",
+    "nextPointId": "point-4"
+  },
+  {
+    "id": "point-4",
+    "slug": "park-guell",
+    "name": "Park Guell",
+    "baseDescription": "Park Guell cierra la ruta con un espacio abierto, reconocible y muy asociado a la imaginacion de Gaudi. Sus mosaicos, su relacion con la ciudad y su valor como mirador simbolico de Barcelona permiten terminar la demo con una sensacion de cierre y recompensa. El contenido debe sonar celebratorio, facil de escuchar en audio y preparado para enlazar con el final del juego y el bonus de puntuacion.",
+    "coordinates": {
+      "lat": 41.4145,
+      "lng": 2.1527
+    },
+    "testImageRef": "samples/barcelona/park-guell.jpg",
+    "expectedRiddle": "¿Que parque de Gaudi completa esta ruta demo por Barcelona?",
+    "correctAnswer": "Park Guell",
+    "nextPointId": null
+  }
+]
