@@ -3,6 +3,13 @@
 Base de trabajo compartida para el proyecto **Mystery Tourist Lens**. En esta fase la rama `integrations` queda preparada para el trabajo de Persona 3 con enfoque `JSON first`: datos demo, prompts, documentacion de ruta y tooling de validacion.
 
 ## Estructura inicial
+Base de trabajo compartida para el proyecto **Mystery Tourist Lens**.
+
+## Rama `integrations`
+
+Esta seccion resume el trabajo preparado en la rama `integrations`, centrado en un enfoque `JSON first`: datos demo, prompts, documentacion de ruta y tooling de validacion. La idea es que frontend y backend tengan aqui una referencia comun de integracion y que luego cada rama pueda ampliar el `README` con sus propias decisiones y avances.
+
+### Estructura incorporada en `integrations`
 
 ```text
 turIA/
@@ -17,12 +24,14 @@ turIA/
 ```
 
 ## Scripts disponibles
+### Scripts disponibles
 
 - `npm run validate:demo-data`: valida contratos, IDs, referencias cruzadas y consistencia basica de los JSON.
 - `npm run smoke:persona3`: recorre el flujo demo y comprueba que la ruta, el progreso y las respuestas de ejemplo estan alineados.
 - `npm run check:persona3`: ejecuta ambas comprobaciones seguidas.
 
 ## Zona de Persona 3
+### Areas cubiertas por `integrations`
 
 - `demo-data/`: contratos y datos estables para ruta, puntos, progreso y respuestas de respaldo.
 - `docs/prompts/`: plantillas de prompts para audioguia, enigma y validacion.
@@ -31,6 +40,9 @@ turIA/
 ## Ruta demo actual
 
 La demo preparada por Persona 3 ya no es generica. La ruta base esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**:
+### Ruta demo actual
+
+La ruta base preparada en `integrations` esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**:
 
 1. `point-1`: Sagrada Familia
 2. `point-2`: Casa Batllo
@@ -49,6 +61,9 @@ Ademas, los `baseDescription` de cada punto ya estan redactados con tono turisti
 ## Lo que debe saber frontend
 
 Siguiendo el reparto original del PDF, frontend es responsable de la experiencia de usuario, la navegacion, el flujo de foto, la audioguia, el enigma, el mapa y el progreso visible. Para integrarse con el trabajo de Persona 3, frontend debe asumir lo siguiente:
+### Lo que debe saber frontend
+
+Siguiendo el reparto original del PDF, frontend es responsable de la experiencia de usuario, la navegacion, el flujo de foto, la audioguia, el enigma, el mapa y el progreso visible. Para integrarse con lo preparado en `integrations`, frontend debe asumir lo siguiente:
 
 - El flujo demo es lineal: un punto actual, un enigma, un desbloqueo y un siguiente punto definido por `nextPointId`.
 - El punto inicial es `route.demo.json -> startPointId`.
@@ -60,6 +75,7 @@ Siguiendo el reparto original del PDF, frontend es responsable de la experiencia
 - Los nombres de campo no deben cambiarse por conveniencia de UI sin coordinarlo, porque son la base compartida de integracion.
 - `guideText` esta planteado para poder mostrarse tal cual en pantalla y tambien reutilizarse en audio.
 - `baseDescription` no es texto decorativo: es la base canonica sobre la que Persona 2 debe construir la generacion con Gemini.
+- `baseDescription` no es texto decorativo: es la base canonica sobre la que debe construirse la generacion con Gemini.
 
 ### Campos que frontend consumira con mas frecuencia
 
@@ -71,6 +87,9 @@ Siguiendo el reparto original del PDF, frontend es responsable de la experiencia
 ## Lo que debe saber backend
 
 Siguiendo el PDF, backend es responsable de llamar de forma segura a Google Cloud, generar la audioguia, el enigma, el audio y validar la respuesta. Para integrarse con el trabajo de Persona 3, backend debe asumir lo siguiente:
+### Lo que debe saber backend
+
+Siguiendo el PDF, backend es responsable de llamar de forma segura a Google Cloud, generar la audioguia, el enigma, el audio y validar la respuesta. Para integrarse con lo preparado en `integrations`, backend debe asumir lo siguiente:
 
 - Existe una ruta demo cerrada y estable en `demo-data/` que puede usarse como fuente de verdad temporal para pruebas e integracion.
 - Los prompts base que backend deberia usar o tomar como referencia estan en `docs/prompts/`.
@@ -80,6 +99,8 @@ Siguiendo el PDF, backend es responsable de llamar de forma segura a Google Clou
 - Los endpoints del PDF siguen siendo la referencia de integracion: especialmente `POST /api/process-photo` y `POST /api/check-answer` para el MVP.
 - La respuesta de backend debe respetar los contratos ya preparados por Persona 3 para que frontend y progreso no se rompan.
 - El modelo logico de Firestore preparado por Persona 3 esta documentado en `docs/rutas-demo/firestore-model.md`.
+- La respuesta de backend debe respetar los contratos ya preparados en `integrations` para que frontend y progreso no se rompan.
+- El modelo logico de Firestore preparado en `integrations` esta documentado en `docs/rutas-demo/firestore-model.md`.
 - Los prompts se han afinado para trabajar con temperatura baja, salida controlada y validacion estricta del JSON antes de responder al frontend.
 
 ### Expectativas concretas para backend
@@ -96,6 +117,11 @@ Siguiendo el PDF, backend es responsable de llamar de forma segura a Google Clou
 Usa `.env.example` como plantilla. En esta primera fase no se suben claves reales ni se exige tener `gcloud` o `firebase` instalados.
 
 ## Siguiente uso recomendado
+### Variables de entorno
+
+Usa `.env.example` como plantilla. En esta primera fase no se suben claves reales ni se exige tener `gcloud` o `firebase` instalados.
+
+### Siguiente uso recomendado
 
 1. Revisar la ruta de Barcelona/Gaudi en `demo-data/`.
 2. Ejecutar `npm run check:persona3`.
