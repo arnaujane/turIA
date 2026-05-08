@@ -1,0 +1,12 @@
+{
+  "name": "turia",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Base compartida del proyecto Mystery Tourist Lens para datos demo, prompts y validaciones.",
+  "scripts": {
+    "validate:demo-data": "node ./scripts/validate-demo-data.mjs",
+    "smoke:persona3": "node ./scripts/smoke-persona3.mjs",
+    "check:persona3": "npm run validate:demo-data && npm run smoke:persona3"
+  }
+}
+
