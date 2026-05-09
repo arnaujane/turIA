@@ -13,14 +13,14 @@ Esta seccion resume el trabajo preparado en la rama `integrations`, centrado en 
 
 ```text
 turIA/
-├── demo-data/
-├── docs/
-│   ├── prompts/
-│   └── rutas-demo/
-├── scripts/
-├── .env.example
-├── .gitignore
-└── package.json
+â”œâ”€â”€ demo-data/
+â”œâ”€â”€ docs/
+â”‚   â”œâ”€â”€ prompts/
+â”‚   â””â”€â”€ rutas-demo/
+â”œâ”€â”€ scripts/
+â”œâ”€â”€ .env.example
+â”œâ”€â”€ .gitignore
+â””â”€â”€ package.json
 ```
 
 ## Scripts disponibles
@@ -126,3 +126,69 @@ Usa `.env.example` como plantilla. En esta primera fase no se suben claves reale
 1. Revisar la ruta de Barcelona/Gaudi en `demo-data/`.
 2. Ejecutar `npm run check:persona3`.
 3. Usar estos contratos como base al integrar frontend, backend, mapa y progreso.
+
+## Rama `backend`
+
+Esta seccion resume el trabajo inicial preparado en la rama `backend`, centrado en el MVP de Persona 2: una API Express alineada con `demo-data/`, con fallbacks estables para la demo y un adaptador listo para conectar Google Cloud sin romper contratos.
+
+### Estructura incorporada en `backend`
+
+```text
+turIA/
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ config/
+â”‚   â”‚   â”œâ”€â”€ controllers/
+â”‚   â”‚   â”œâ”€â”€ middleware/
+â”‚   â”‚   â”œâ”€â”€ routes/
+â”‚   â”‚   â””â”€â”€ services/
+â”‚   â”œâ”€â”€ .env.example
+â”‚   â”œâ”€â”€ package.json
+â”‚   â””â”€â”€ README.md
+â””â”€â”€ package.json
+```
+
+### Backend MVP disponible
+
+- `GET /api/health`
+- `GET /api/route`
+- `POST /api/analyze-image`
+- `POST /api/generate-guide`
+- `POST /api/generate-audio`
+- `POST /api/process-photo`
+- `POST /api/check-answer`
+- `GET /api/progress/:userId`
+- `POST /api/progress`
+
+### Comportamiento actual de backend
+
+- El modo por defecto usa `demo-data/` y `sample-responses.json` para dar respuestas estables a frontend.
+- `processPhoto` acepta `multipart/form-data` con el campo `image`.
+- El progreso se guarda en memoria para integracion temprana mientras no exista Firestore real.
+- Existe un adaptador `mock/live` para Vision, Vertex AI y Text-to-Speech controlado por variables de entorno.
+- Si `GOOGLE_CLOUD_USE_REAL_APIS=false`, backend sigue en modo demo.
+- Si `GOOGLE_CLOUD_USE_REAL_APIS=true`, backend intenta usar Google Cloud real mediante ADC.
+
+### Scripts utiles para backend
+
+- `npm run backend:dev`: arranca el backend en modo desarrollo desde la raiz.
+- `npm run backend:start`: arranca el backend sin watch desde la raiz.
+
+### Variables de entorno adicionales para backend
+
+Ademas de la `.env.example` de la raiz, backend incorpora su propia plantilla en `backend/.env.example` con:
+
+- `PORT`
+- `ALLOWED_ORIGIN`
+- `GOOGLE_CLOUD_PROJECT_ID`
+- `GOOGLE_CLOUD_REGION`
+- `GOOGLE_APPLICATION_CREDENTIALS`
+- `GOOGLE_CLOUD_USE_REAL_APIS`
+- `VERTEX_MODEL`
+- `TTS_VOICE_NAME`
+
+### Estado actual recomendado para Persona 2
+
+1. Mantener el contrato JSON actual como superficie estable para frontend.
+2. Activar Google Cloud CLI y `gcloud auth application-default login` para pruebas reales.
+3. Sustituir progresivamente el modo mock por Vision, Vertex AI y Text-to-Speech reales sin cambiar el contrato de respuesta.
