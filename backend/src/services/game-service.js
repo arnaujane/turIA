@@ -25,6 +25,40 @@ function randomRequestId(prefix) {
   return `${prefix}-${Date.now()}`;
 }
 
+function getProcessPhotoFallback(pointId) {
+  const sampleResponses = getSampleResponses().processPhoto;
+
+  if (sampleResponses.success.pointId === pointId) {
+    return structuredClone(sampleResponses.success);
+  }
+
+  if (sampleResponses.fallback.pointId === pointId) {
+    return structuredClone(sampleResponses.fallback);
+  }
+
+  const point = getPointById(pointId);
+
+  return {
+    requestId: randomRequestId("demo-fallback"),
+    pointId,
+    detectedPlace: point?.name || sampleResponses.fallback.detectedPlace,
+    confidence: 0,
+    usedFallback: true,
+    guideText: point?.baseDescription || sampleResponses.fallback.guideText,
+    audio: {
+      format: "mp3",
+      url: `/mock-audio/${pointId}.mp3`
+    },
+    riddle: {
+      question: point?.expectedRiddle || sampleResponses.fallback.riddle.question,
+      answerOptions: buildAnswerOptions(point || getPointById(sampleResponses.fallback.pointId)),
+      hint: point ? `Pista breve sobre ${point.name}.` : sampleResponses.fallback.riddle.hint
+    },
+    nextPointId: point?.nextPointId ?? sampleResponses.fallback.nextPointId,
+    routeStatus: point?.nextPointId ? "in_progress" : "completed"
+  };
+}
+
 function buildAnswerOptions(point) {
   const otherPoints = getPoints()
     .filter((candidate) => candidate.id !== point.id)
@@ -114,14 +148,35 @@ async function generateGuide(payload) {
     };
   }
 
-  return {
-    pointId: point.id,
-    guideText: await generateGuideFromPoint(point, payload.visionContext),
-    riddle: await generateRiddleFromPoint(point, answerOptions, payload.visionContext),
-    nextPointId: point.nextPointId,
-    routeStatus: point.nextPointId ? "in_progress" : "completed",
-    usedFallback: false
-  };
+  try {
+    return {
+      pointId: point.id,
+      guideText: await generateGuideFromPoint(point, payload.visionContext),
+      riddle: await generateRiddleFromPoint(point, answerOptions, payload.visionContext),
+      nextPointId: point.nextPointId,
+      routeStatus: point.nextPointId ? "in_progress" : "completed",
+      usedFallback: false
+    };
+  } catch (error) {
+    if (!env.demoUseStaticFallbacks) {
+      throw error;
+    }
+
+    const fallback = getProcessPhotoFallback(point.id);
+
+    return {
+      pointId: fallback.pointId,
+      guideText: fallback.guideText,
+      riddle: fallback.riddle,
+      nextPointId: fallback.nextPointId,
+      routeStatus: fallback.routeStatus,
+      usedFallback: true,
+      generationError: {
+        code: error.code || "GENERATION_FALLBACK",
+        message: error.message
+      }
+    };
+  }
 }
 
 async function generateAudio(payload) {
@@ -171,7 +226,7 @@ async function processPhoto({ file, body }) {
     pointId: guide.pointId,
     detectedPlace: analysis.detectedPlace,
     confidence: analysis.confidence,
-    usedFallback: analysis.usedFallback,
+    usedFallback: analysis.usedFallback || guide.usedFallback,
     guideText: guide.guideText,
     audio: audio.audio,
     riddle: guide.riddle,

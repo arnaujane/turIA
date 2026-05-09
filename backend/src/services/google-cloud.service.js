@@ -100,6 +100,29 @@ function extractTextFromVertexResponse(response) {
     .trim();
 }
 
+function extractJsonObject(text) {
+  const trimmed = String(text || "").trim();
+
+  if (!trimmed) {
+    return "";
+  }
+
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim();
+  }
+
+  const firstBrace = trimmed.indexOf("{");
+  const lastBrace = trimmed.lastIndexOf("}");
+
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1);
+  }
+
+  return trimmed;
+}
+
 async function generateGuideFromPoint(point, visionContext = {}) {
   if (!env.googleCloudUseRealApis) {
     return point.baseDescription;
@@ -180,7 +203,20 @@ async function generateRiddleFromPoint(point, options, visionContext = {}) {
   });
 
   const text = extractTextFromVertexResponse(result.response);
-  const parsed = JSON.parse(text);
+  const jsonText = extractJsonObject(text);
+  let parsed;
+
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch (error) {
+    const parseError = new Error("Vertex AI devolvio un enigma no parseable.");
+    parseError.code = "VERTEX_RIDDLE_PARSE_ERROR";
+    parseError.details = {
+      rawText: text.slice(0, 500),
+      jsonText: jsonText.slice(0, 500)
+    };
+    throw parseError;
+  }
 
   if (
     !parsed ||
@@ -189,7 +225,12 @@ async function generateRiddleFromPoint(point, options, visionContext = {}) {
     parsed.answerOptions.length !== 3 ||
     typeof parsed.hint !== "string"
   ) {
-    throw new Error("Vertex AI devolvio un enigma con contrato invalido.");
+    const contractError = new Error("Vertex AI devolvio un enigma con contrato invalido.");
+    contractError.code = "VERTEX_RIDDLE_CONTRACT_ERROR";
+    contractError.details = {
+      rawText: text.slice(0, 500)
+    };
+    throw contractError;
   }
 
   return {
