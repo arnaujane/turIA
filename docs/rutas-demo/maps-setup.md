@@ -14,15 +14,15 @@ Guia breve para dejar documentada la integracion sin activar todavia la clave re
 
 ## Contrato que consumira frontend
 
-Frontend deberia recibir o leer por punto:
+Frontend deberia recibir o leer por punto este minimo estable:
 
 ```json
 {
   "id": "point-1",
-  "name": "Punto Inicio Demo",
+  "name": "Sagrada Familia",
   "coordinates": {
-    "lat": 40.4168,
-    "lng": -3.7038
+    "lat": 41.4036,
+    "lng": 2.1744
   }
 }
 ```
@@ -33,9 +33,15 @@ Frontend deberia recibir o leer por punto:
 - Mostrar punto actual y siguiente punto desbloqueado.
 - Calcular distancia aproximada entre usuario y objetivo.
 
+## Dependencias funcionales
+
+- El mapa no depende todavia de una implementacion concreta en `frontend/`.
+- El punto actual sale de `currentPointId`.
+- El siguiente punto desbloqueado se deduce desde `nextPointId` y `unlockedPoints`.
+- Si frontend necesita mas datos visuales, deben anadirse sin renombrar `id`, `name` o `coordinates`.
+
 ## Decisiones de esta fase
 
 - No se incluye clave real en el repo.
 - No se instala `gcloud`.
 - No se integra aun `@googlemaps/js-api-loader`; solo se deja listo el contrato de datos.
-

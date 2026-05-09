@@ -74,6 +74,10 @@ async function main() {
     fail("processPhoto.success.riddle.question no coincide con expectedRiddle del punto");
   }
 
+  if (!successResponse.riddle.answerOptions.includes(successPoint.correctAnswer)) {
+    fail("processPhoto.success debe incluir la respuesta correcta dentro de answerOptions");
+  }
+
   if (successPoint.correctAnswer !== correctAnswer.submittedAnswer) {
     fail("checkAnswer.correct.submittedAnswer no coincide con correctAnswer del punto");
   }
@@ -82,9 +86,17 @@ async function main() {
     fail("checkAnswer.correct.unlockedPointId no coincide con nextPointId del punto");
   }
 
+  if (correctAnswer.awardedScore !== route.scoringRules.correctAnswer) {
+    fail("checkAnswer.correct debe reflejar solo correctAnswer como puntuacion activa");
+  }
+
   const fallbackPoint = pointMap.get(fallbackResponse.pointId);
   if (fallbackPoint.expectedRiddle !== fallbackResponse.riddle.question) {
     fail("processPhoto.fallback.riddle.question no coincide con expectedRiddle del punto");
+  }
+
+  if (!fallbackResponse.riddle.answerOptions.includes(fallbackPoint.correctAnswer)) {
+    fail("processPhoto.fallback debe incluir la respuesta correcta dentro de answerOptions");
   }
 
   const finalPoint = pointMap.get(finalPointAnswer.pointId);
@@ -100,8 +112,19 @@ async function main() {
     fail("checkAnswer.finalPoint debe cerrar la ruta con routeStatus completed");
   }
 
+  if (
+    finalPointAnswer.awardedScore !==
+    route.scoringRules.correctAnswer + route.scoringRules.routeCompletionBonus
+  ) {
+    fail("checkAnswer.finalPoint debe reflejar correctAnswer mas routeCompletionBonus");
+  }
+
   if (!progress.unlockedPoints.includes(progress.currentPointId)) {
     fail("progress.demo.json debe incluir currentPointId dentro de unlockedPoints");
+  }
+
+  if ("routeId" in progress) {
+    fail("progress.demo.json no debe incluir routeId en el contrato runtime actual");
   }
 
   for (const completedPointId of progress.completedChallenges) {
@@ -112,8 +135,8 @@ async function main() {
     }
   }
 
-  if (progress.score < route.scoringRules.photoValidated + route.scoringRules.correctAnswer) {
-    fail("progress.demo.json no refleja al menos la puntuacion minima del primer punto resuelto");
+  if (progress.score !== route.scoringRules.correctAnswer) {
+    fail("progress.demo.json debe reflejar solo la puntuacion runtime activa del primer punto resuelto");
   }
 
   console.log("Smoke check de Persona 3 completado correctamente.");

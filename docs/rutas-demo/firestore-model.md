@@ -1,6 +1,7 @@
 # Modelo logico de Firestore
 
 Documento de referencia para integrar progreso y ruta sin implementarlo aun.
+Este archivo describe el modelo objetivo. No todo este contrato esta activo todavia en el runtime actual.
 
 ## Colecciones principales
 
@@ -22,7 +23,7 @@ routes/
 {
   "routeId": "demo-route",
   "currentPointId": "point-2",
-  "score": 150,
+  "score": 100,
   "completedChallenges": ["point-1"],
   "unlockedPoints": ["point-1", "point-2"],
   "routeStatus": "in_progress",
@@ -61,3 +62,6 @@ routes/
 - El modelo replica los mismos campos clave usados en `demo-data/`.
 - `progress/demo-route` se plantea como un documento por ruta para simplificar lecturas.
 - Las marcas temporales quedan para la futura implementacion de backend o cliente.
+- `routeId` se mantiene documentado aqui como parte del modelo logico objetivo.
+- `progress.demo.json` no incluye `routeId` por ahora porque el backend runtime actual todavia no lo usa.
+- La puntuacion del ejemplo usa solo `correctAnswer` activo en runtime para no mezclar reglas de diseno aun no adoptadas.
