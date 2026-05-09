@@ -4,9 +4,11 @@
   "version": "0.1.0",
   "description": "Base compartida del proyecto Mystery Tourist Lens para datos demo, prompts y validaciones.",
   "scripts": {
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:start": "npm --prefix backend run start",
     "validate:demo-data": "node ./scripts/validate-demo-data.mjs",
     "smoke:persona3": "node ./scripts/smoke-persona3.mjs",
-    "check:persona3": "npm run validate:demo-data && npm run smoke:persona3"
+    "check:persona3": "node ./scripts/validate-demo-data.mjs && node ./scripts/smoke-persona3.mjs"
   }
 }
 
