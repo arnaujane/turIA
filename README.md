@@ -198,3 +198,55 @@ Ademas de la `.env.example` de la raiz, backend incorpora su propia plantilla en
 1. Mantener el contrato JSON actual como superficie estable para frontend.
 2. Activar Google Cloud CLI y `gcloud auth application-default login` para pruebas reales.
 3. Sustituir progresivamente el modo mock por Vision, Vertex AI y Text-to-Speech reales sin cambiar el contrato de respuesta.
+
+### Demo del backend
+
+Para facilitar la comprobacion funcional del backend se ha añadido un script de demo en Node.js:
+
+- `backend/demo-backend.js`
+
+Este script sirve para recorrer de forma automatica los endpoints principales del backend y comprobar que el flujo MVP responde de punta a punta.
+
+#### Que comprueba la demo
+
+- `GET /api/health`
+- `GET /api/route`
+- `GET /api/progress/:userId`
+- `POST /api/check-answer` con respuesta incorrecta
+- `POST /api/check-answer` con respuesta correcta
+- `POST /api/process-photo`
+
+#### Como ejecutar la demo
+
+Desde la raiz del repositorio:
+
+```bash
+node backend/demo-backend.js
+```
+
+Si el script detecta que el backend no esta levantado, intenta arrancarlo automaticamente usando `backend/src/server.js`.
+
+Tambien admite esta variante:
+
+```bash
+node backend/demo-backend.js --keep-server-running
+```
+
+Con `--keep-server-running`, si la demo ha levantado el backend por si misma, no lo apaga al terminar.
+
+#### Comportamiento de la demo
+
+- Usa `backend/.env` como configuracion local.
+- Crea una imagen temporal minima para probar `process-photo`.
+- Muestra por consola un resumen legible de cada respuesta.
+- Si `Gemini` falla al generar el enigma en JSON, la demo sigue mostrando el comportamiento real del backend con `fallback`.
+
+#### Objetivo de esta demo
+
+La idea no es sustituir pruebas reales con fotos del proyecto, sino tener una comprobacion rapida y repetible de que:
+
+1. el backend arranca
+2. los contratos JSON principales siguen vivos
+3. el progreso mock responde
+4. `process-photo` devuelve la estructura esperada
+5. el flujo no se rompe aunque la generacion con Google Cloud falle parcialmente
