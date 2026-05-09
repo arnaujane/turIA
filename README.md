@@ -1,48 +1,39 @@
 # turIA
 
-Base de trabajo compartida para el proyecto **Mystery Tourist Lens**. En esta fase la rama `integrations` queda preparada para el trabajo de Persona 3 con enfoque `JSON first`: datos demo, prompts, documentacion de ruta y tooling de validacion.
-
-## Estructura inicial
 Base de trabajo compartida para el proyecto **Mystery Tourist Lens**.
 
-## Rama `integrations`
+La rama `integrations` funciona como referencia comun para Persona 3 con enfoque `JSON first`: contratos estables, datos demo, prompts y documentacion de integracion para que frontend y backend no trabajen con supuestos distintos.
 
-Esta seccion resume el trabajo preparado en la rama `integrations`, centrado en un enfoque `JSON first`: datos demo, prompts, documentacion de ruta y tooling de validacion. La idea es que frontend y backend tengan aqui una referencia comun de integracion y que luego cada rama pueda ampliar el `README` con sus propias decisiones y avances.
-
-### Estructura incorporada en `integrations`
+## Estructura cubierta en `integrations`
 
 ```text
 turIA/
-├── demo-data/
-├── docs/
-│   ├── prompts/
-│   └── rutas-demo/
-├── scripts/
-├── .env.example
-├── .gitignore
-└── package.json
+|-- demo-data/
+|-- docs/
+|   |-- prompts/
+|   `-- rutas-demo/
+|-- scripts/
+|-- .env.example
+|-- .gitignore
+`-- package.json
 ```
 
 ## Scripts disponibles
-### Scripts disponibles
 
-- `npm run validate:demo-data`: valida contratos, IDs, referencias cruzadas y consistencia basica de los JSON.
-- `npm run smoke:persona3`: recorre el flujo demo y comprueba que la ruta, el progreso y las respuestas de ejemplo estan alineados.
+- `npm run validate:demo-data`: valida contratos, IDs, referencias cruzadas y coherencia de los JSON.
+- `npm run smoke:persona3`: recorre el flujo demo y comprueba que ruta, progreso y respuestas de ejemplo sigan alineados.
 - `npm run check:persona3`: ejecuta ambas comprobaciones seguidas.
 
-## Zona de Persona 3
-### Areas cubiertas por `integrations`
+## Areas preparadas por Persona 3
 
-- `demo-data/`: contratos y datos estables para ruta, puntos, progreso y respuestas de respaldo.
-- `docs/prompts/`: plantillas de prompts para audioguia, enigma y validacion.
-- `docs/rutas-demo/`: documentacion funcional de ruta, puntuacion, mapa y modelo logico de Firestore.
+- `demo-data/`: ruta demo, puntos, progreso y respuestas fallback estables.
+- `docs/prompts/`: prompts de audioguia, enigma, validacion y contrato de prompts.
+- `docs/rutas-demo/`: documentacion funcional de ruta, mapa, progreso, Firestore y contrato de integracion.
+- `scripts/`: validaciones para detectar roturas de contrato antes de integrar con otras ramas.
 
 ## Ruta demo actual
 
-La demo preparada por Persona 3 ya no es generica. La ruta base esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**:
-### Ruta demo actual
-
-La ruta base preparada en `integrations` esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**:
+La demo canonica preparada en `integrations` esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**:
 
 1. `point-1`: Sagrada Familia
 2. `point-2`: Casa Batllo
@@ -56,72 +47,87 @@ Los datos principales viven en:
 - `demo-data/sample-responses.json`
 - `demo-data/progress.demo.json`
 
-Ademas, los `baseDescription` de cada punto ya estan redactados con tono turistico y pensados para servir como fuente fiable de contexto al generar audioguias, enigmas y fallbacks.
-
 ## Lo que debe saber frontend
 
-Siguiendo el reparto original del PDF, frontend es responsable de la experiencia de usuario, la navegacion, el flujo de foto, la audioguia, el enigma, el mapa y el progreso visible. Para integrarse con el trabajo de Persona 3, frontend debe asumir lo siguiente:
-### Lo que debe saber frontend
-
-Siguiendo el reparto original del PDF, frontend es responsable de la experiencia de usuario, la navegacion, el flujo de foto, la audioguia, el enigma, el mapa y el progreso visible. Para integrarse con lo preparado en `integrations`, frontend debe asumir lo siguiente:
+Frontend debe tomar `integrations` como fuente de verdad de nombres de campo y flujo demo.
 
 - El flujo demo es lineal: un punto actual, un enigma, un desbloqueo y un siguiente punto definido por `nextPointId`.
 - El punto inicial es `route.demo.json -> startPointId`.
 - El orden canonico de la ruta es `route.demo.json -> pointOrder`.
 - El mapa debe leer coordenadas desde `points.demo.json -> coordinates`.
-- El estado minimo que frontend debe poder guardar o reflejar coincide con el PDF y con `progress.demo.json`: `currentPointId`, `score`, `completedChallenges`, `unlockedPoints`, `routeStatus`.
-- El identificador anonimo sugerido por el PDF sigue siendo valido: `localStorage -> mystery_user_id`.
+- El contrato minimo de mapa por punto es `id`, `name` y `coordinates`.
+- El progreso runtime actual usa estos campos: `userId`, `currentPointId`, `score`, `completedChallenges`, `unlockedPoints`, `routeStatus`.
+- `routeId` no forma parte del progreso runtime actual aunque exista en el modelo logico de Firestore.
+- El identificador anonimo sugerido por el MVP sigue siendo valido: `localStorage -> mystery_user_id`.
 - Mientras backend real no este estable, frontend puede apoyarse en `sample-responses.json` para simular `processPhoto` y `checkAnswer`.
-- Los nombres de campo no deben cambiarse por conveniencia de UI sin coordinarlo, porque son la base compartida de integracion.
+- Los nombres de campo no deben cambiarse por conveniencia de UI sin coordinarlo antes con `integrations`.
 - `guideText` esta planteado para poder mostrarse tal cual en pantalla y tambien reutilizarse en audio.
-- `baseDescription` no es texto decorativo: es la base canonica sobre la que Persona 2 debe construir la generacion con Gemini.
-- `baseDescription` no es texto decorativo: es la base canonica sobre la que debe construirse la generacion con Gemini.
 
 ### Campos que frontend consumira con mas frecuencia
 
 - Ruta: `id`, `name`, `locale`, `startPointId`, `pointOrder`, `totalPoints`, `scoringRules`
-- Punto: `id`, `name`, `baseDescription`, `coordinates`, `testImageRef`, `expectedRiddle`, `correctAnswer`, `nextPointId`
-- Respuesta de `processPhoto`: `detectedPlace`, `guideText`, `audio`, `riddle`, `nextPointId`, `routeStatus`
+- Punto: `id`, `slug`, `name`, `baseDescription`, `coordinates`, `testImageRef`, `expectedRiddle`, `correctAnswer`, `nextPointId`
+- Respuesta de `processPhoto`: `pointId`, `detectedPlace`, `guideText`, `audio`, `riddle`, `nextPointId`, `routeStatus`
 - Respuesta de `checkAnswer`: `isCorrect`, `awardedScore`, `unlockedPointId`, `routeStatus`, `feedback`
 
 ## Lo que debe saber backend
 
-Siguiendo el PDF, backend es responsable de llamar de forma segura a Google Cloud, generar la audioguia, el enigma, el audio y validar la respuesta. Para integrarse con el trabajo de Persona 3, backend debe asumir lo siguiente:
-### Lo que debe saber backend
-
-Siguiendo el PDF, backend es responsable de llamar de forma segura a Google Cloud, generar la audioguia, el enigma, el audio y validar la respuesta. Para integrarse con lo preparado en `integrations`, backend debe asumir lo siguiente:
+Backend debe tomar `integrations` como referencia comun para contratos, fallback y prompts.
 
 - Existe una ruta demo cerrada y estable en `demo-data/` que puede usarse como fuente de verdad temporal para pruebas e integracion.
-- Los prompts base que backend deberia usar o tomar como referencia estan en `docs/prompts/`.
-- Backend debe tomar como referencia adicional `docs/prompts/prompt-contract.md` y `docs/prompts/api-optimization-notes.md` para usar Vision, Gemini y TTS de forma consistente.
+- Los prompts base que backend debe usar o tomar como referencia estan en `docs/prompts/`.
+- Backend debe usar como referencia adicional `docs/prompts/prompt-contract.md` y `docs/prompts/api-optimization-notes.md` para trabajar con Vision, Gemini y TTS de forma consistente.
 - El vocabulario compartido de la demo debe mantenerse estable: `pointId`, `nextPointId`, `currentPointId`, `completedChallenges`, `unlockedPoints`, `routeStatus`.
 - Si Vision o Gemini fallan, backend debe poder devolver un fallback coherente usando `sample-responses.json` o datos equivalentes.
-- Los endpoints del PDF siguen siendo la referencia de integracion: especialmente `POST /api/process-photo` y `POST /api/check-answer` para el MVP.
-- La respuesta de backend debe respetar los contratos ya preparados por Persona 3 para que frontend y progreso no se rompan.
+- Los endpoints del MVP siguen siendo la referencia de integracion, especialmente `POST /api/process-photo` y `POST /api/check-answer`.
+- La respuesta de backend debe respetar los contratos preparados en `integrations` para que frontend y progreso no se rompan.
 - El modelo logico de Firestore preparado por Persona 3 esta documentado en `docs/rutas-demo/firestore-model.md`.
-- La respuesta de backend debe respetar los contratos ya preparados en `integrations` para que frontend y progreso no se rompan.
-- El modelo logico de Firestore preparado en `integrations` esta documentado en `docs/rutas-demo/firestore-model.md`.
-- Los prompts se han afinado para trabajar con temperatura baja, salida controlada y validacion estricta del JSON antes de responder al frontend.
+
+### Aclaraciones importantes sobre progreso y puntuacion
+
+- El progreso runtime actual no incluye `routeId`.
+- `routeId` se mantiene solo en el modelo logico objetivo de Firestore hasta que backend lo adopte de forma real.
+- La documentacion de scoring conserva estas reglas de diseno: `photoValidated`, `correctAnswer`, `hintPenalty`, `routeCompletionBonus`.
+- En el runtime actual, backend ya refleja `correctAnswer` y `routeCompletionBonus`.
+- En el runtime actual, `photoValidated` y `hintPenalty` siguen siendo reglas de diseno no activas.
+- Los ejemplos de `progress.demo.json` y `sample-responses.json` ya estan alineados con ese runtime actual para evitar falsas expectativas.
 
 ### Expectativas concretas para backend
 
-- `processPhoto` debe devolver un punto detectado de la ruta, texto de guia, audio, enigma, siguiente punto y estado de ruta.
+- `processPhoto` debe devolver punto detectado, texto de guia, audio, enigma, siguiente punto y estado de ruta.
 - `checkAnswer` debe devolver si la respuesta es correcta, la puntuacion otorgada, el desbloqueo correspondiente y feedback breve.
-- `routeStatus` debe usar estos estados: `locked`, `in_progress`, `completed`.
+- `routeStatus` debe usar solo estos estados: `locked`, `in_progress`, `completed`.
 - Si el usuario completa el ultimo punto, la respuesta debe cerrar la ruta con `routeStatus = completed`.
-- No deben exponerse claves ni credenciales en frontend; toda llamada privada a Google Cloud debe quedarse en backend.
 - Backend no deberia pasar el payload bruto de Vision a Gemini; primero debe resumirlo en contexto pequeno y util.
+- Backend debe validar el JSON de Gemini antes de devolverlo a frontend y usar fallback si la salida rompe contrato.
 
 ## Variables de entorno
 
-Usa `.env.example` como plantilla. En esta primera fase no se suben claves reales ni se exige tener `gcloud` o `firebase` instalados.
+Usa `.env.example` como plantilla. En esta fase no se suben claves reales ni se exige tener `gcloud` o `firebase` instalados.
+
+Variables relevantes para integracion:
+
+- `VITE_GOOGLE_MAPS_API_KEY`
+- `VITE_API_BASE_URL`
+- `GOOGLE_CLOUD_PROJECT_ID`
+- `GOOGLE_CLOUD_REGION`
+- `FIRESTORE_USERS_COLLECTION`
+- `FIRESTORE_PROGRESS_SUBCOLLECTION`
+- `FIRESTORE_ROUTES_COLLECTION`
+- `FIRESTORE_DEMO_ROUTE_ID`
+- `DEMO_ROUTE_LOCALE`
+- `DEMO_USE_STATIC_FALLBACKS`
+- `DEMO_ENABLE_MOCK_PROGRESS`
+
+## Documentacion recomendada
+
+- Contrato general: `docs/rutas-demo/contrato-integracion.md`
+- Flujo y estados: `docs/rutas-demo/estructura-y-flujo.md`
+- Modelo logico de Firestore: `docs/rutas-demo/firestore-model.md`
+- Setup de mapa: `docs/rutas-demo/maps-setup.md`
+- Planning operativo de Persona 3: `docs/rutas-demo/persona3-planning.md`
 
 ## Siguiente uso recomendado
-### Variables de entorno
-
-Usa `.env.example` como plantilla. En esta primera fase no se suben claves reales ni se exige tener `gcloud` o `firebase` instalados.
-
-### Siguiente uso recomendado
 
 1. Revisar la ruta de Barcelona/Gaudi en `demo-data/`.
 2. Ejecutar `npm run check:persona3`.
