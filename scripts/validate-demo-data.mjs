@@ -41,13 +41,15 @@ async function main() {
   let points;
   let sampleResponses;
   let progress;
+  let progressSnapshots;
 
   try {
-    [route, points, sampleResponses, progress] = await Promise.all([
+    [route, points, sampleResponses, progress, progressSnapshots] = await Promise.all([
       readJson("demo-data/route.demo.json"),
       readJson("demo-data/points.demo.json"),
       readJson("demo-data/sample-responses.json"),
-      readJson("demo-data/progress.demo.json")
+      readJson("demo-data/progress.demo.json"),
+      readJson("demo-data/progress-snapshots.demo.json")
     ]);
   } catch (error) {
     console.error(error.message);
@@ -518,6 +520,122 @@ async function main() {
     );
   }
 
+  assert(
+    isObject(progressSnapshots),
+    "progress-snapshots.demo.json: debe ser un objeto"
+  );
+
+  const expectedSnapshotCases = [
+    "newUser",
+    "afterFirstPoint",
+    "midRoute",
+    "incorrectAnswer",
+    "completedRoute"
+  ];
+
+  for (const caseName of expectedSnapshotCases) {
+    const snapshot = progressSnapshots?.[caseName];
+    assert(
+      isObject(snapshot),
+      `progress-snapshots.demo.json: falta el caso "${caseName}"`
+    );
+
+    if (!isObject(snapshot)) {
+      continue;
+    }
+
+    const label = `progress-snapshots.demo.json.${caseName}`;
+
+    for (const key of progressKeys) {
+      assert(key in snapshot, `${label}: falta el campo obligatorio "${key}"`);
+    }
+
+    assert(isNonEmptyString(snapshot.userId), `${label}: userId debe ser string no vacio`);
+    assert(
+      pointIds.has(snapshot.currentPointId),
+      `${label}: currentPointId debe existir en points.demo.json`
+    );
+    assert(
+      isFiniteNumber(snapshot.score) && snapshot.score >= 0,
+      `${label}: score debe ser numerico y no negativo`
+    );
+    assert(
+      Array.isArray(snapshot.completedChallenges),
+      `${label}: completedChallenges debe ser un array`
+    );
+    assert(
+      Array.isArray(snapshot.unlockedPoints),
+      `${label}: unlockedPoints debe ser un array`
+    );
+    assert(
+      ["locked", "in_progress", "completed"].includes(snapshot.routeStatus),
+      `${label}: routeStatus no es valido`
+    );
+    assert(
+      !("routeId" in snapshot),
+      `${label}: routeId no debe formar parte del contrato runtime actual`
+    );
+
+    for (const pointId of snapshot.completedChallenges) {
+      assert(
+        pointIds.has(pointId),
+        `${label}: completedChallenges contiene un punto inexistente "${pointId}"`
+      );
+    }
+
+    for (const pointId of snapshot.unlockedPoints) {
+      assert(
+        pointIds.has(pointId),
+        `${label}: unlockedPoints contiene un punto inexistente "${pointId}"`
+      );
+    }
+
+    assert(
+      snapshot.unlockedPoints.includes(route.startPointId),
+      `${label}: unlockedPoints debe incluir startPointId`
+    );
+    assert(
+      snapshot.unlockedPoints.includes(snapshot.currentPointId),
+      `${label}: unlockedPoints debe incluir currentPointId`
+    );
+    assert(
+      new Set(snapshot.completedChallenges).size === snapshot.completedChallenges.length,
+      `${label}: completedChallenges no puede tener duplicados`
+    );
+    assert(
+      new Set(snapshot.unlockedPoints).size === snapshot.unlockedPoints.length,
+      `${label}: unlockedPoints no puede tener duplicados`
+    );
+
+    const currentIndex = route.pointOrder.indexOf(snapshot.currentPointId);
+    for (const completedPointId of snapshot.completedChallenges) {
+      const pointIndex = route.pointOrder.indexOf(completedPointId);
+      assert(
+        pointIndex !== -1 && pointIndex <= currentIndex,
+        `${label}: completedChallenges contiene puntos fuera de orden respecto a currentPointId`
+      );
+    }
+
+    const expectedUnlocked = route.pointOrder.slice(0, currentIndex + 1);
+    for (const unlockedPointId of expectedUnlocked) {
+      assert(
+        snapshot.unlockedPoints.includes(unlockedPointId),
+        `${label}: falta el desbloqueo esperado de "${unlockedPointId}"`
+      );
+    }
+
+    const completedCount = snapshot.completedChallenges.length;
+    const expectedBaseScore = completedCount * route.scoringRules.correctAnswer;
+    const expectedFinalScore =
+      expectedBaseScore +
+      (snapshot.routeStatus === "completed" ? route.scoringRules.routeCompletionBonus : 0);
+
+    assert(
+      snapshot.score === expectedFinalScore,
+      `${label}: score no cuadra con las reglas runtime activas`
+    );
+  }
+
   if (errors.length > 0) {
     console.error("Se encontraron errores de validacion:");
     for (const message of errors) {
@@ -529,6 +647,7 @@ async function main() {
   console.log("Validacion completada correctamente.");
   console.log(`Ruta: ${route.id} (${route.totalPoints} puntos)`);
   console.log(`Puntos validados: ${points.length}`);
+  console.log(`Snapshots runtime validados: ${expectedSnapshotCases.length}`);
 }
 
 main();

@@ -1,67 +1,127 @@
 # turIA
 
-Base de trabajo compartida para el proyecto **Mystery Tourist Lens**.
+Base de trabajo compartida para **Mystery Tourist Lens**.
 
-La rama `integrations` funciona como referencia comun para Persona 3 con enfoque `JSON first`: contratos estables, datos demo, prompts y documentacion de integracion para que frontend y backend no trabajen con supuestos distintos.
+La rama `main` contiene hoy dos bloques reales:
 
-## Estructura cubierta en `integrations`
+- la capa comun de Persona 3 para ruta, datos, prompts, mapa, progreso e integracion
+- el backend MVP de Persona 2 alineado con esos contratos
 
-```text
-turIA/
-|-- demo-data/
-|-- docs/
-|   |-- prompts/
-|   `-- rutas-demo/
-|-- scripts/
-|-- .env.example
-|-- .gitignore
-`-- package.json
-```
+La implementacion funcional de `frontend/` aun no esta integrada en el repositorio. Por eso, la fuente de verdad de integracion sigue viviendo en la superficie preparada por Persona 3:
 
-## Scripts disponibles
+- `demo-data/`
+- `docs/prompts/`
+- `docs/rutas-demo/`
+- `scripts/`
 
-- `npm run validate:demo-data`: valida contratos, IDs, referencias cruzadas y coherencia de los JSON.
-- `npm run smoke:persona3`: recorre el flujo demo y comprueba que ruta, progreso y respuestas de ejemplo sigan alineados.
-- `npm run check:persona3`: ejecuta ambas comprobaciones seguidas.
+## Vision general y estado actual
 
-## Areas preparadas por Persona 3
+- La demo canonica esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**.
+- Los contratos JSON de ruta, puntos, progreso y respuestas demo estan cerrados y validados.
+- Backend ya existe y debe respetar esos contratos al evolucionar Vision, Gemini, TTS y persistencia.
+- Google Maps y Firestore siguen preparados a nivel de contrato, documentacion y variables, pero no estan activados de forma real dentro del repo.
+- El frontend sigue pendiente de integracion funcional; no debe tomarse una rama de frontend previa como referencia de implementacion.
 
-- `demo-data/`: ruta demo, puntos, progreso y respuestas fallback estables.
-- `docs/prompts/`: prompts de audioguia, enigma, validacion y contrato de prompts.
-- `docs/rutas-demo/`: documentacion funcional de ruta, mapa, progreso, Firestore y contrato de integracion.
-- `scripts/`: validaciones para detectar roturas de contrato antes de integrar con otras ramas.
+## Que ha preparado Persona 3
 
-## Ruta demo actual
+Persona 3 no esta construyendo el frontend ni el backend completo. Su responsabilidad actual es la capa de juego, datos, integracion y coherencia entre equipos.
 
-La demo canonica preparada en `integrations` esta pensada para **Barcelona** y recorre 4 obras de **Antoni Gaudi**:
+Lo ya preparado por Persona 3 es:
 
-1. `point-1`: Sagrada Familia
-2. `point-2`: Casa Batllo
-3. `point-3`: La Pedrera
-4. `point-4`: Park Guell
+- una ruta demo cerrada de 4 puntos sobre Gaudi en Barcelona
+- contratos JSON estables para ruta, puntos, progreso runtime y respuestas de respaldo
+- prompts base para audioguia, enigma, validacion y contrato de prompts
+- modelo logico objetivo de Firestore para progreso y ruta
+- setup documental de Google Maps con contrato minimo de mapa
+- snapshots canonicos de progreso runtime para comparar integraciones
+- validaciones automatizadas para detectar roturas de contrato
+- fallbacks y respuestas de referencia para no depender de APIs reales durante la demo
 
-Los datos principales viven en:
+## Contratos congelados hoy
 
-- `demo-data/route.demo.json`
-- `demo-data/points.demo.json`
-- `demo-data/sample-responses.json`
-- `demo-data/progress.demo.json`
+### Ruta
 
-## Lo que debe saber frontend
+- `id`
+- `name`
+- `locale`
+- `startPointId`
+- `pointOrder`
+- `totalPoints`
+- `scoringRules`
 
-Frontend debe tomar `integrations` como fuente de verdad de nombres de campo y flujo demo.
+### Punto
 
-- El flujo demo es lineal: un punto actual, un enigma, un desbloqueo y un siguiente punto definido por `nextPointId`.
+- `id`
+- `slug`
+- `name`
+- `baseDescription`
+- `coordinates`
+- `testImageRef`
+- `expectedRiddle`
+- `correctAnswer`
+- `nextPointId`
+
+### `processPhoto`
+
+- `pointId`
+- `detectedPlace`
+- `guideText`
+- `audio`
+- `riddle`
+- `nextPointId`
+- `routeStatus`
+
+### `checkAnswer`
+
+- `isCorrect`
+- `awardedScore`
+- `unlockedPointId`
+- `routeStatus`
+- `feedback`
+
+### Progreso runtime actual
+
+- `userId`
+- `currentPointId`
+- `score`
+- `completedChallenges`
+- `unlockedPoints`
+- `routeStatus`
+
+### Reglas runtime activas hoy
+
+- `correctAnswer`: activa
+- `routeCompletionBonus`: activa
+- `photoValidated`: no activa todavia
+- `hintPenalty`: no activa todavia
+- `routeId`: fuera del progreso runtime actual
+
+## Lo que necesita saber Frontend
+
+Frontend debe tomar la capa de Persona 3 como fuente de verdad de nombres de campo y flujo demo.
+
+- El flujo demo es lineal: punto actual, foto, audioguia, enigma, validacion y desbloqueo del siguiente punto.
+- `currentPointId` determina el punto actual de la experiencia.
+- `nextPointId` determina el siguiente objetivo de la ruta.
 - El punto inicial es `route.demo.json -> startPointId`.
-- El orden canonico de la ruta es `route.demo.json -> pointOrder`.
-- El mapa debe leer coordenadas desde `points.demo.json -> coordinates`.
+- El orden canonico es `route.demo.json -> pointOrder`.
 - El contrato minimo de mapa por punto es `id`, `name` y `coordinates`.
-- El progreso runtime actual usa estos campos: `userId`, `currentPointId`, `score`, `completedChallenges`, `unlockedPoints`, `routeStatus`.
-- `routeId` no forma parte del progreso runtime actual aunque exista en el modelo logico de Firestore.
-- El identificador anonimo sugerido por el MVP sigue siendo valido: `localStorage -> mystery_user_id`.
-- Mientras backend real no este estable, frontend puede apoyarse en `sample-responses.json` para simular `processPhoto` y `checkAnswer`.
-- Los nombres de campo no deben cambiarse por conveniencia de UI sin coordinarlo antes con `integrations`.
-- `guideText` esta planteado para poder mostrarse tal cual en pantalla y tambien reutilizarse en audio.
+- El progreso runtime actual solo usa `userId`, `currentPointId`, `score`, `completedChallenges`, `unlockedPoints` y `routeStatus`.
+- `routeId` no forma parte del runtime actual aunque exista en el modelo logico de Firestore.
+- Frontend no debe renombrar campos por comodidad visual sin coordinar antes la capa comun de Persona 3.
+- `guideText` debe poder mostrarse tal cual y reutilizarse en audio.
+- `VITE_GOOGLE_MAPS_API_KEY` es necesaria para activar el mapa real, pero la clave no se guarda en el repo.
+
+### Comportamiento funcional esperado del mapa
+
+- Si hay permisos de geolocalizacion, el mapa debe mostrar ubicacion actual del usuario.
+- El mapa debe mostrar el punto actual.
+- El mapa debe mostrar el siguiente punto desbloqueado como objetivo activo cuando exista.
+- Se pueden renderizar todos los puntos de la ruta, pero solo se deben destacar visualmente el punto actual y el objetivo activo.
+- La distancia debe calcularse solo contra el objetivo activo.
+- Si el usuario niega geolocalizacion, el mapa debe seguir mostrando la ruta y los puntos relevantes, pero sin posicion actual ni distancia.
+
+Referencia funcional: `docs/rutas-demo/maps-setup.md`
 
 ### Campos que frontend consumira con mas frecuencia
 
@@ -70,42 +130,44 @@ Frontend debe tomar `integrations` como fuente de verdad de nombres de campo y f
 - Respuesta de `processPhoto`: `pointId`, `detectedPlace`, `guideText`, `audio`, `riddle`, `nextPointId`, `routeStatus`
 - Respuesta de `checkAnswer`: `isCorrect`, `awardedScore`, `unlockedPointId`, `routeStatus`, `feedback`
 
-## Lo que debe saber backend
+## Lo que necesita saber Backend
 
-Backend debe tomar `integrations` como referencia comun para contratos, fallback y prompts.
+Backend debe consumir `demo-data/` como fuente comun mientras no exista una capa real de contenido o configuracion.
 
-- Existe una ruta demo cerrada y estable en `demo-data/` que puede usarse como fuente de verdad temporal para pruebas e integracion.
-- Los prompts base que backend debe usar o tomar como referencia estan en `docs/prompts/`.
-- Backend debe usar como referencia adicional `docs/prompts/prompt-contract.md` y `docs/prompts/api-optimization-notes.md` para trabajar con Vision, Gemini y TTS de forma consistente.
-- El vocabulario compartido de la demo debe mantenerse estable: `pointId`, `nextPointId`, `currentPointId`, `completedChallenges`, `unlockedPoints`, `routeStatus`.
-- Si Vision o Gemini fallan, backend debe poder devolver un fallback coherente usando `sample-responses.json` o datos equivalentes.
-- Los endpoints del MVP siguen siendo la referencia de integracion, especialmente `POST /api/process-photo` y `POST /api/check-answer`.
-- La respuesta de backend debe respetar los contratos preparados en `integrations` para que frontend y progreso no se rompan.
-- El modelo logico de Firestore preparado por Persona 3 esta documentado en `docs/rutas-demo/firestore-model.md`.
+- Backend debe respetar los contratos de `processPhoto`, `checkAnswer` y progreso.
+- Backend debe mantener estable este vocabulario compartido:
+  - `pointId`
+  - `nextPointId`
+  - `currentPointId`
+  - `completedChallenges`
+  - `unlockedPoints`
+  - `routeStatus`
+- En el runtime actual, solo se reflejan reglas ya activas:
+  - `correctAnswer`
+  - `routeCompletionBonus`
+- En el runtime actual, siguen fuera:
+  - `photoValidated`
+  - `hintPenalty`
+  - `routeId` dentro de `progress`
+- La recomendacion por defecto es que backend calcule progreso, calcule puntuacion y persista progreso; frontend solo refleja estado y envia eventos.
+- Si Vision o Gemini fallan, el fallback debe seguir apoyandose en `sample-responses.json`.
+- Firestore sigue siendo el objetivo de persistencia real, aunque hoy el backend conserve progreso en memoria.
+- Backend no debe compensar discrepancias inventando nuevos campos fuera del contrato comun.
 
-### Aclaraciones importantes sobre progreso y puntuacion
+Referencia funcional: `docs/rutas-demo/contrato-integracion.md` y `docs/rutas-demo/firestore-model.md`
 
-- El progreso runtime actual no incluye `routeId`.
-- `routeId` se mantiene solo en el modelo logico objetivo de Firestore hasta que backend lo adopte de forma real.
-- La documentacion de scoring conserva estas reglas de diseno: `photoValidated`, `correctAnswer`, `hintPenalty`, `routeCompletionBonus`.
-- En el runtime actual, backend ya refleja `correctAnswer` y `routeCompletionBonus`.
-- En el runtime actual, `photoValidated` y `hintPenalty` siguen siendo reglas de diseno no activas.
-- Los ejemplos de `progress.demo.json` y `sample-responses.json` ya estan alineados con ese runtime actual para evitar falsas expectativas.
+## Estado actual de integraciones
 
-### Expectativas concretas para backend
+- Contratos de Persona 3: listos y validados
+- Backend MVP: implementado en `backend/`
+- Frontend: no integrado aun en el repo como implementacion funcional
+- Google Maps real: pendiente de proyecto compartido, clave y activacion
+- Firestore real: pendiente de adopcion por backend
+- Vision, Gemini y TTS reales: preparados por adaptador, no obligatorios para la demo mock
 
-- `processPhoto` debe devolver punto detectado, texto de guia, audio, enigma, siguiente punto y estado de ruta.
-- `checkAnswer` debe devolver si la respuesta es correcta, la puntuacion otorgada, el desbloqueo correspondiente y feedback breve.
-- `routeStatus` debe usar solo estos estados: `locked`, `in_progress`, `completed`.
-- Si el usuario completa el ultimo punto, la respuesta debe cerrar la ruta con `routeStatus = completed`.
-- Backend no deberia pasar el payload bruto de Vision a Gemini; primero debe resumirlo en contexto pequeno y util.
-- Backend debe validar el JSON de Gemini antes de devolverlo a frontend y usar fallback si la salida rompe contrato.
-
-## Variables de entorno
+## Variables de entorno relevantes
 
 Usa `.env.example` como plantilla. En esta fase no se suben claves reales ni se exige tener `gcloud` o `firebase` instalados.
-
-Variables relevantes para integracion:
 
 - `VITE_GOOGLE_MAPS_API_KEY`
 - `VITE_API_BASE_URL`
@@ -119,42 +181,17 @@ Variables relevantes para integracion:
 - `DEMO_USE_STATIC_FALLBACKS`
 - `DEMO_ENABLE_MOCK_PROGRESS`
 
-## Documentacion recomendada
+## Comandos de validacion
 
-- Contrato general: `docs/rutas-demo/contrato-integracion.md`
-- Flujo y estados: `docs/rutas-demo/estructura-y-flujo.md`
-- Modelo logico de Firestore: `docs/rutas-demo/firestore-model.md`
-- Setup de mapa: `docs/rutas-demo/maps-setup.md`
-- Planning operativo de Persona 3: `docs/rutas-demo/persona3-planning.md`
+- `npm run validate:demo-data`: valida contratos, referencias cruzadas y snapshots runtime
+- `npm run smoke:persona3`: recorre el flujo demo y comprueba que ruta, progreso y respuestas siguen alineados
+- `npm run check:persona3`: ejecuta ambas comprobaciones seguidas
 
-## Siguiente uso recomendado
+## Backend MVP disponible
 
-1. Revisar la ruta de Barcelona/Gaudi en `demo-data/`.
-2. Ejecutar `npm run check:persona3`.
-3. Usar estos contratos como base al integrar frontend, backend, mapa y progreso.
+El backend MVP de Persona 2 ya esta integrado en `main` y se apoya en los contratos de Persona 3.
 
-## Rama `backend`
-
-Esta seccion resume el trabajo inicial preparado en la rama `backend`, centrado en el MVP de Persona 2: una API Express alineada con `demo-data/`, con fallbacks estables para la demo y un adaptador listo para conectar Google Cloud sin romper contratos.
-
-### Estructura incorporada en `backend`
-
-```text
-turIA/
-|-- backend/
-|   |-- src/
-|   |   |-- config/
-|   |   |-- controllers/
-|   |   |-- middleware/
-|   |   |-- routes/
-|   |   `-- services/
-|   |-- .env.example
-|   |-- package.json
-|   `-- README.md
-`-- package.json
-```
-
-### Backend MVP disponible
+### Endpoints disponibles
 
 - `GET /api/health`
 - `GET /api/route`
@@ -166,87 +203,34 @@ turIA/
 - `GET /api/progress/:userId`
 - `POST /api/progress`
 
-### Comportamiento actual de backend
+### Comportamiento actual
 
-- El modo por defecto usa `demo-data/` y `sample-responses.json` para dar respuestas estables a frontend.
+- El modo por defecto usa `demo-data/` y `sample-responses.json` para dar respuestas estables.
 - `processPhoto` acepta `multipart/form-data` con el campo `image`.
-- El progreso se guarda en memoria para integracion temprana mientras no exista Firestore real.
+- El progreso se guarda en memoria mientras no exista Firestore real.
 - Existe un adaptador `mock/live` para Vision, Vertex AI y Text-to-Speech controlado por variables de entorno.
 - Si `GOOGLE_CLOUD_USE_REAL_APIS=false`, backend sigue en modo demo.
 - Si `GOOGLE_CLOUD_USE_REAL_APIS=true`, backend intenta usar Google Cloud real mediante ADC.
 
 ### Scripts utiles para backend
 
-- `npm run backend:dev`: arranca el backend en modo desarrollo desde la raiz.
-- `npm run backend:start`: arranca el backend sin watch desde la raiz.
+- `npm run backend:dev`
+- `npm run backend:start`
+- `node backend/demo-backend.js`
 
-### Variables de entorno adicionales para backend
+## Documentacion recomendada
 
-Ademas de la `.env.example` de la raiz, backend incorpora su propia plantilla en `backend/.env.example` con:
+- Contrato general: `docs/rutas-demo/contrato-integracion.md`
+- Flujo y estados: `docs/rutas-demo/estructura-y-flujo.md`
+- Setup funcional de mapa: `docs/rutas-demo/maps-setup.md`
+- Modelo logico y persistencia objetivo: `docs/rutas-demo/firestore-model.md`
+- Handoff operativo: `docs/rutas-demo/handoff-integracion.md`
+- Planning operativo de Persona 3: `docs/rutas-demo/persona3-planning.md`
+- Contrato de prompts: `docs/prompts/prompt-contract.md`
 
-- `PORT`
-- `ALLOWED_ORIGIN`
-- `GOOGLE_CLOUD_PROJECT_ID`
-- `GOOGLE_CLOUD_REGION`
-- `GOOGLE_APPLICATION_CREDENTIALS`
-- `GOOGLE_CLOUD_USE_REAL_APIS`
-- `VERTEX_MODEL`
-- `TTS_VOICE_NAME`
+## Siguientes pasos de integracion
 
-### Estado actual recomendado para Persona 2
-
-1. Mantener el contrato JSON actual como superficie estable para frontend.
-2. Activar Google Cloud CLI y `gcloud auth application-default login` para pruebas reales.
-3. Sustituir progresivamente el modo mock por Vision, Vertex AI y Text-to-Speech reales sin cambiar el contrato de respuesta.
-
-### Demo del backend
-
-Para facilitar la comprobacion funcional del backend se ha añadido un script de demo en Node.js:
-
-- `backend/demo-backend.js`
-
-Este script sirve para recorrer de forma automatica los endpoints principales del backend y comprobar que el flujo MVP responde de punta a punta.
-
-#### Que comprueba la demo
-
-- `GET /api/health`
-- `GET /api/route`
-- `GET /api/progress/:userId`
-- `POST /api/check-answer` con respuesta incorrecta
-- `POST /api/check-answer` con respuesta correcta
-- `POST /api/process-photo`
-
-#### Como ejecutar la demo
-
-Desde la raiz del repositorio:
-
-```bash
-node backend/demo-backend.js
-```
-
-Si el script detecta que el backend no esta levantado, intenta arrancarlo automaticamente usando `backend/src/server.js`.
-
-Tambien admite esta variante:
-
-```bash
-node backend/demo-backend.js --keep-server-running
-```
-
-Con `--keep-server-running`, si la demo ha levantado el backend por si misma, no lo apaga al terminar.
-
-#### Comportamiento de la demo
-
-- Usa `backend/.env` como configuracion local.
-- Crea una imagen temporal minima para probar `process-photo`.
-- Muestra por consola un resumen legible de cada respuesta.
-- Si `Gemini` falla al generar el enigma en JSON, la demo sigue mostrando el comportamiento real del backend con `fallback`.
-
-#### Objetivo de esta demo
-
-La idea no es sustituir pruebas reales con fotos del proyecto, sino tener una comprobacion rapida y repetible de que:
-
-1. el backend arranca
-2. los contratos JSON principales siguen vivos
-3. el progreso mock responde
-4. `process-photo` devuelve la estructura esperada
-5. el flujo no se rompe aunque la generacion con Google Cloud falle parcialmente
+1. Persona 1 implementa el mapa sobre el contrato ya fijado y con `VITE_GOOGLE_MAPS_API_KEY` real fuera del repo.
+2. Persona 2 adopta persistencia real manteniendo el contrato runtime actual.
+3. El equipo ejecuta una prueba funcional completa con foto, audioguia, enigma, desbloqueo, mapa y progreso.
+4. Si entran Vision, Gemini o TTS reales, backend debe conservar el contrato y usar fallback cuando sea necesario.

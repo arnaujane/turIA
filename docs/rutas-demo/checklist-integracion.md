@@ -9,6 +9,7 @@ Checklist de Persona 3 para revisar contratos sin tocar `backend/` ni `frontend/
 - Todos los `nextPointId` apuntan a puntos reales o terminan en `null`.
 - Cada `expectedRiddle` y `correctAnswer` sigue alineado con `sample-responses.json`.
 - `testImageRef` queda estable como referencia logica compartida.
+- `progress-snapshots.demo.json` cubre estados canonicos del runtime actual.
 
 ## Contrato runtime actual
 
@@ -35,3 +36,4 @@ Checklist de Persona 3 para revisar contratos sin tocar `backend/` ni `frontend/
 - Persona 1 no debe renombrar campos por conveniencia de UI.
 - Persona 2 no debe romper el vocabulario compartido al evolucionar endpoints.
 - Si backend adopta `routeId` en runtime o activa nuevas reglas de puntuacion, antes debe actualizarse esta carpeta como fuente de verdad.
+- El handoff operativo breve esta consolidado en `docs/rutas-demo/handoff-integracion.md`.

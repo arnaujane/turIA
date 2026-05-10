@@ -1,20 +1,25 @@
-# Setup manual de Google Maps
+# Setup funcional de Google Maps
 
-Guia breve para dejar documentada la integracion sin activar todavia la clave real.
+Documento de Persona 3 para dejar el mapa decidido a nivel funcional sin implementar todavia el frontend.
 
-## Pasos en Google Cloud Console
+## Estado de esta integracion
 
-1. Crear o seleccionar el proyecto de Google Cloud compartido.
-2. Activar **Maps JavaScript API**.
+- El proyecto de Google Cloud compartido es una tarea externa a confirmar por el equipo.
+- La clave real no se guarda en el repo.
+- La API necesaria es `Maps JavaScript API`.
+- La credencial esperada en frontend es `VITE_GOOGLE_MAPS_API_KEY`.
+
+## Pasos externos en Google Cloud Console
+
+1. Crear o seleccionar el proyecto compartido del equipo.
+2. Activar `Maps JavaScript API`.
 3. Crear una API key para frontend.
-4. Restringir la clave por:
-   - API: Maps JavaScript API
-   - Origenes HTTP autorizados del entorno de desarrollo y produccion
-5. Guardar la clave en `VITE_GOOGLE_MAPS_API_KEY`.
+4. Restringir la clave por API y por origenes HTTP autorizados.
+5. Configurar la clave real fuera del repo mediante `VITE_GOOGLE_MAPS_API_KEY`.
 
-## Contrato que consumira frontend
+## Contrato minimo de mapa
 
-Frontend deberia recibir o leer por punto este minimo estable:
+Frontend debe poder renderizar el mapa con este minimo estable por punto:
 
 ```json
 {
@@ -27,21 +32,56 @@ Frontend deberia recibir o leer por punto este minimo estable:
 }
 ```
 
-## Casos de uso previstos
+Los campos congelados para mapa son:
 
-- Mostrar ubicacion actual del usuario.
-- Mostrar punto actual y siguiente punto desbloqueado.
-- Calcular distancia aproximada entre usuario y objetivo.
+- `id`
+- `name`
+- `coordinates`
+
+Si hicieran falta datos visuales adicionales, deben anadirse sin renombrar esos tres campos.
+
+## Comportamiento funcional decidido
+
+### Punto actual
+
+- El punto actual viene de `currentPointId`.
+- El frontend no debe inferirlo por posicion en un array si ya tiene `currentPointId`.
+
+### Objetivo visible principal
+
+- El objetivo visible principal es el siguiente punto desbloqueado cuando exista.
+- Ese objetivo se deduce con `currentPointId`, `nextPointId` y `unlockedPoints`.
+- Si el usuario esta en el ultimo punto, no existe objetivo siguiente y el mapa solo destaca el punto actual.
+
+### Puntos visibles
+
+- Se pueden mostrar todos los puntos de la ruta.
+- Solo se deben destacar visualmente:
+  - el punto actual
+  - el objetivo activo
+
+### Distancia
+
+- La distancia se calcula solo contra el objetivo activo.
+- Si no existe objetivo siguiente, no hace falta mostrar distancia a un nuevo destino.
+
+### Geolocalizacion
+
+- Si el usuario concede permisos, el mapa muestra su ubicacion actual.
+- Si el usuario niega permisos, el mapa sigue mostrando la ruta, el punto actual y el objetivo activo.
+- Sin permisos, no se muestra posicion actual ni distancia.
 
 ## Dependencias funcionales
 
-- El mapa no depende todavia de una implementacion concreta en `frontend/`.
-- El punto actual sale de `currentPointId`.
-- El siguiente punto desbloqueado se deduce desde `nextPointId` y `unlockedPoints`.
-- Si frontend necesita mas datos visuales, deben anadirse sin renombrar `id`, `name` o `coordinates`.
+- `currentPointId` sale del progreso runtime.
+- `nextPointId` sale del punto actual.
+- `unlockedPoints` confirma que el objetivo ya esta disponible.
+- El mapa sigue dependiendo de que Persona 1 implemente la pantalla y la carga de Google Maps en frontend.
 
-## Decisiones de esta fase
+## Micro handoff para Persona 1
 
-- No se incluye clave real en el repo.
-- No se instala `gcloud`.
-- No se integra aun `@googlemaps/js-api-loader`; solo se deja listo el contrato de datos.
+- Necesitas `VITE_GOOGLE_MAPS_API_KEY` fuera del repo.
+- Debes consumir `id`, `name` y `coordinates` como contrato minimo de mapa.
+- Debes usar `currentPointId` como fuente de verdad del punto actual.
+- Debes destacar el siguiente punto desbloqueado como objetivo activo cuando exista.
+- Debes soportar fallback sin geolocalizacion sin romper la pantalla.
