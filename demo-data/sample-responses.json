@@ -1,0 +1,89 @@
+{
+  "processPhoto": {
+    "success": {
+      "requestId": "demo-process-001",
+      "pointId": "point-1",
+      "detectedPlace": "Sagrada Familia",
+      "confidence": 0.93,
+      "usedFallback": false,
+      "guideText": "Estas frente a la Sagrada Familia, uno de los grandes simbolos de Barcelona y una obra inseparable del imaginario de Antoni Gaudi. Sus torres y su fuerza visual la convierten en una apertura perfecta para esta ruta. Observa sus formas y preparate para seguir descubriendo como Gaudi transformo la ciudad.",
+      "audio": {
+        "format": "mp3",
+        "url": "/mock-audio/point-1.mp3"
+      },
+      "riddle": {
+        "question": "¿Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+        "answerOptions": [
+          "Antoni Gaudi",
+          "Pablo Picasso",
+          "Ildefons Cerda"
+        ],
+        "hint": "Es el nombre propio mas repetido en la ruta."
+      },
+      "nextPointId": "point-2",
+      "routeStatus": "in_progress"
+    },
+    "fallback": {
+      "requestId": "demo-process-fallback-001",
+      "pointId": "point-2",
+      "detectedPlace": "Casa Batllo",
+      "confidence": 0.0,
+      "usedFallback": true,
+      "guideText": "No se ha podido analizar la imagen con estabilidad, asi que usamos contenido de respaldo para continuar la demo en Casa Batllo. Estas ante una de las fachadas mas imaginativas de Barcelona, una parada clave para seguir la ruta de Gaudi sin romper el ritmo del juego.",
+      "audio": {
+        "format": "mp3",
+        "url": "/mock-audio/fallback-point-2.mp3"
+      },
+      "riddle": {
+        "question": "¿En que paseo de Barcelona se encuentra la Casa Batllo dentro de esta ruta?",
+        "answerOptions": [
+          "Passeig de Gracia",
+          "La Rambla",
+          "Avinguda Diagonal"
+        ],
+        "hint": "Es una de las avenidas mas famosas del Eixample."
+      },
+      "nextPointId": "point-3",
+      "routeStatus": "in_progress"
+    },
+    "errors": {
+      "invalidImage": {
+        "code": "INVALID_IMAGE",
+        "message": "La imagen recibida no es valida para el flujo de demo."
+      },
+      "placeNotDetected": {
+        "code": "PLACE_NOT_DETECTED",
+        "message": "No se ha podido detectar un punto de interes con suficiente confianza."
+      }
+    }
+  },
+  "checkAnswer": {
+    "correct": {
+      "pointId": "point-1",
+      "submittedAnswer": "Antoni Gaudi",
+      "isCorrect": true,
+      "awardedScore": 100,
+      "unlockedPointId": "point-2",
+      "routeStatus": "in_progress",
+      "feedback": "Respuesta correcta. El siguiente punto queda desbloqueado."
+    },
+    "incorrect": {
+      "pointId": "point-2",
+      "submittedAnswer": "La Rambla",
+      "isCorrect": false,
+      "awardedScore": 0,
+      "unlockedPointId": null,
+      "routeStatus": "in_progress",
+      "feedback": "Respuesta incorrecta. Puedes volver a intentarlo o pedir una pista."
+    },
+    "finalPoint": {
+      "pointId": "point-4",
+      "submittedAnswer": "Park Guell",
+      "isCorrect": true,
+      "awardedScore": 250,
+      "unlockedPointId": null,
+      "routeStatus": "completed",
+      "feedback": "Ruta completada. Se aplica la puntuacion final de cierre."
+    }
+  }
+}
