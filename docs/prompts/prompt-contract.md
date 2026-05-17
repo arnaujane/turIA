@@ -14,31 +14,40 @@ Convenciones compartidas entre Persona 2 y Persona 3 para mantener respuestas es
 
 ## Longitud esperada
 
-- Audioguia: 55-85 palabras.
-- Enigma: 1 pregunta breve, 3 opciones exactas.
+- `placeInfo`: 55-85 palabras.
+- `audioGuideText`: 55-85 palabras.
+- Enigma: 1 pregunta breve, 4 opciones exactas.
 - Pista: 1 frase corta.
 - Feedback de validacion: 1-2 frases.
 
 ## Formatos de salida
 
-- La audioguia sale como texto plano.
+- La audioguia ya no sale como texto plano suelto.
+- Gemini debe devolver JSON para la guia con `placeInfo` y `audioGuideText`.
 - El enigma sale en JSON con `question`, `answerOptions`, `correctAnswer`, `hint`.
 - La validacion sale en JSON con `isCorrect`, `feedback`.
 
 ## Flujo recomendado entre APIs
 
 1. Cloud Vision detecta lugar, labels y texto visible.
-2. Backend resume esa evidencia en campos pequenos y comprensibles para Gemini.
-3. Gemini recibe `baseDescription` como fuente principal y la evidencia de Vision como refuerzo secundario.
-4. Gemini devuelve `guideText` y el bloque de enigma en un formato facil de validar.
-5. Text-to-Speech convierte `guideText` en audio.
+2. Backend resume esa evidencia en campos pequenos y comprensibles.
+3. Backend resuelve `matchedPointId` contra la ruta cerrada.
+4. Backend carga `canonicalPlace` desde `demo-data/`.
+5. Gemini recibe `baseDescription` como fuente principal y la evidencia de Vision como refuerzo secundario.
+6. Gemini devuelve solo los bloques creativos y estructurados.
+7. Text-to-Speech convierte `audioGuideText` en audio.
 
-## Variables minimas que backend deberia inyectar
+## Variables minimas que backend debe inyectar
 
 - `locale`
 - `point_name`
+- `city`
+- `country`
+- `construction_year`
+- `emoji`
 - `base_description`
 - `correct_answer`
+- `answer_options`
 - `vision_summary`
 - `vision_labels`
 - `vision_ocr`
@@ -55,5 +64,6 @@ Convenciones compartidas entre Persona 2 y Persona 3 para mantener respuestas es
 ## Recomendaciones de robustez
 
 - Backend debe validar siempre el JSON de Gemini antes de reenviarlo a frontend.
-- Conviene fijar temperatura baja para tareas estructuradas como enigma y validacion.
-- Los prompts deben enviarse con instrucciones que prohiban bloques de codigo y texto adicional fuera del formato esperado.
+- Conviene fijar temperatura baja en salidas estructuradas.
+- Conviene usar salida estructurada de Vertex AI con `responseMimeType = application/json`.
+- `name`, `city`, `country`, `constructionYear` y `emoji` no deben salir del modelo si la ruta sigue siendo cerrada.

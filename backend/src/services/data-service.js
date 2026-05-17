@@ -16,6 +16,20 @@ const progressTemplate = readJsonFile("progress.demo.json");
 const pointsById = new Map(points.map((point) => [point.id, point]));
 const pointIdsBySlug = new Map(points.map((point) => [point.slug, point.id]));
 
+function buildCanonicalPlace(point) {
+  if (!point) {
+    return null;
+  }
+
+  return {
+    name: point.name,
+    city: point.city,
+    country: point.country,
+    constructionYear: point.constructionYear,
+    emoji: point.emoji
+  };
+}
+
 function getRoute() {
   return route;
 }
@@ -33,6 +47,10 @@ function getPointBySlug(slug) {
   return pointId ? getPointById(pointId) : null;
 }
 
+function getCanonicalPlace(pointId) {
+  return buildCanonicalPlace(getPointById(pointId));
+}
+
 function getSampleResponses() {
   return sampleResponses;
 }
@@ -46,6 +64,7 @@ module.exports = {
   getPoints,
   getPointById,
   getPointBySlug,
+  getCanonicalPlace,
   getSampleResponses,
   getProgressTemplate
 };

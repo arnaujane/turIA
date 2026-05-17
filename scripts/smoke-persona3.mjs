@@ -78,6 +78,10 @@ async function main() {
     fail("processPhoto.success debe incluir la respuesta correcta dentro de answerOptions");
   }
 
+  if (successResponse.riddle.answerOptions.length !== 4) {
+    fail("processPhoto.success debe devolver 4 opciones de respuesta");
+  }
+
   if (successPoint.correctAnswer !== correctAnswer.submittedAnswer) {
     fail("checkAnswer.correct.submittedAnswer no coincide con correctAnswer del punto");
   }
@@ -97,6 +101,32 @@ async function main() {
 
   if (!fallbackResponse.riddle.answerOptions.includes(fallbackPoint.correctAnswer)) {
     fail("processPhoto.fallback debe incluir la respuesta correcta dentro de answerOptions");
+  }
+
+  if (fallbackResponse.riddle.answerOptions.length !== 4) {
+    fail("processPhoto.fallback debe devolver 4 opciones de respuesta");
+  }
+
+  if (successResponse.place.name !== successPoint.name) {
+    fail("processPhoto.success.place.name no coincide con el nombre canonico del punto");
+  }
+
+  if (fallbackResponse.place.name !== fallbackPoint.name) {
+    fail("processPhoto.fallback.place.name no coincide con el nombre canonico del punto");
+  }
+
+  if (typeof successResponse.audio.generated !== "boolean") {
+    fail("processPhoto.success.audio.generated debe ser boolean");
+  }
+
+  if (typeof fallbackResponse.audio.generated !== "boolean") {
+    fail("processPhoto.fallback.audio.generated debe ser boolean");
+  }
+
+  for (const point of points) {
+    if (!Array.isArray(point.answerOptions) || point.answerOptions.length !== 4) {
+      fail(`El punto ${point.id} debe declarar 4 answerOptions canonicas`);
+    }
   }
 
   const finalPoint = pointMap.get(finalPointAnswer.pointId);

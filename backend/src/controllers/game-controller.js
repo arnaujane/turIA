@@ -5,6 +5,7 @@ const {
   generateGuide,
   generateAudio,
   processPhoto,
+  processPhotoDetailed,
   validateAnswer
 } = require("../services/game-service");
 const { applyCorrectAnswer } = require("../services/progress-service");
@@ -54,6 +55,14 @@ async function generateAudioController(req, res, next) {
 async function processPhotoController(req, res, next) {
   try {
     res.json(await processPhoto({ file: req.file, body: req.body }));
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function processPhotoDebugController(req, res, next) {
+  try {
+    res.json(await processPhotoDetailed({ file: req.file, body: req.body }));
   } catch (error) {
     next(error);
   }
@@ -110,5 +119,6 @@ module.exports = {
   generateGuideController,
   generateAudioController,
   processPhotoController,
+  processPhotoDebugController,
   checkAnswerController
 };
