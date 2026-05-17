@@ -115,14 +115,18 @@ async function runProcessPhotoDemo() {
 
   return {
     pointId: parsed.pointId,
-    detectedPlace: parsed.detectedPlace,
-    confidence: parsed.confidence,
+    placeName: parsed.place?.name,
+    detectedPlace: parsed.place?.detectedPlace,
+    confidence: parsed.place?.confidence,
     usedFallback: parsed.usedFallback,
     nextPointId: parsed.nextPointId,
     routeStatus: parsed.routeStatus,
     guidePreview:
-      parsed.guideText.length > 140 ? `${parsed.guideText.slice(0, 140)}...` : parsed.guideText,
+      parsed.guide?.placeInfo?.length > 140
+        ? `${parsed.guide.placeInfo.slice(0, 140)}...`
+        : parsed.guide?.placeInfo,
     audioFormat: parsed.audio?.format,
+    audioGenerated: parsed.audio?.generated,
     audioKind: parsed.audio?.url?.startsWith("data:") ? "base64-real-or-generated" : "mock-url",
     riddleQuestion: parsed.riddle?.question
   };

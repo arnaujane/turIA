@@ -7,6 +7,7 @@ const {
   generateGuideController,
   generateAudioController,
   processPhotoController,
+  processPhotoDebugController,
   checkAnswerController
 } = require("../controllers/game-controller");
 const { getRouteController } = require("../controllers/route-controller");
@@ -23,6 +24,7 @@ router.post("/analyze-image", imageUploadMiddleware, analyzeImageController);
 router.post("/generate-guide", generateGuideController);
 router.post("/generate-audio", generateAudioController);
 router.post("/process-photo", imageUploadMiddleware, processPhotoController);
+router.post("/process-photo-debug", imageUploadMiddleware, processPhotoDebugController);
 router.post("/check-answer", checkAnswerController);
 router.get("/progress/:userId", getProgressController);
 router.post("/progress", saveProgressController);

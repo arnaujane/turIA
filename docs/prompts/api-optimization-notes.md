@@ -8,20 +8,23 @@ Guia breve para que Persona 2 use los prompts de Persona 3 de forma estable dent
 - Extraer un resumen pequeno con el monumento o lugar detectado.
 - Extraer entre 3 y 5 labels relevantes.
 - Extraer OCR corto solo si aporta contexto real.
-- Si la confianza de Vision es baja, usar fallback antes de pedir creatividad al modelo.
+- Resolver el punto real de la ruta antes de llamar a Gemini.
+- Si Vision no detecta el punto con confianza suficiente, usar el punto esperado de la ruta cerrada.
 
 ## Gemini API
 
-- Usar los prompts de esta carpeta como plantillas base.
+- Usar los prompts versionados de `docs/prompts/` como fuente real.
 - Mantener temperatura baja en salidas estructuradas.
-- Validar parseo JSON en enigma y validacion antes de responder al frontend.
-- Dar prioridad a `baseDescription` y `correctAnswer` por encima de cualquier inferencia del modelo.
+- Pedir JSON estructurado desde Vertex AI.
+- Validar parseo JSON y contrato final antes de responder al frontend.
+- Dar prioridad a `baseDescription`, `answerOptions` y `correctAnswer` por encima de cualquier inferencia del modelo.
+- No pedir al modelo que invente identidad del lugar cuando `canonicalPlace` ya esta resuelto.
 
 ## Text-to-Speech API
 
-- Reutilizar `guideText` si el texto final es breve y natural.
+- Reutilizar `audioGuideText` como entrada directa a TTS.
 - Evitar frases demasiado largas o con puntuacion compleja en la audioguia.
-- Si el texto supera el rango previsto, recortarlo o regenerarlo antes de TTS.
+- Si TTS falla, mantener al menos `guideText` visible y usar audio fallback si existe.
 
 ## Translation API
 
@@ -30,6 +33,6 @@ Guia breve para que Persona 2 use los prompts de Persona 3 de forma estable dent
 
 ## Fallbacks
 
-- Si Vision no detecta el punto con seguridad suficiente, usar la referencia demo del punto esperado.
+- Si Vision falla o se fuerza fallback, usar la referencia demo del punto esperado.
 - Si Gemini falla, devuelve JSON invalido o cambia el contrato, usar `sample-responses.json`.
-- Si TTS falla, mantener al menos `guideText` visible para no romper el flujo.
+- Si TTS falla, mantener el flujo con `guideText` y audio de fallback.

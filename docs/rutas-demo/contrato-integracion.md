@@ -1,12 +1,17 @@
 # Contrato de integracion de Persona 3
 
-Documento de referencia para dejar claro que significa hoy `integrations` y que partes del juego siguen siendo objetivo futuro.
+Documento de referencia para dejar claro como queda la capa Persona 3 tras rehacerla desde una rama nueva basada en `main`.
 
 ## Fuente de verdad
 
-- `integrations` es la fuente de verdad comun para `demo-data/`, `docs/prompts/`, `docs/rutas-demo/` y `scripts/`.
-- Si frontend o backend necesitan cambiar nombres de campo, primero debe actualizarse esta rama.
-- La rama `frontend` accesible hoy no se toma como referencia funcional de integracion.
+- La rama historica `integrations` ya no se usa como base tecnica.
+- La implementacion activa de Persona 3 debe salir de una rama nueva creada desde `main`.
+- La fuente de verdad comun sigue viviendo en:
+  - `demo-data/`
+  - `docs/prompts/`
+  - `docs/rutas-demo/`
+  - `scripts/`
+- Frontend y backend pueden evolucionar, pero no deben romper estos contratos sin coordinacion previa.
 
 ## Contrato runtime actual
 
@@ -25,10 +30,16 @@ Documento de referencia para dejar claro que significa hoy `integrations` y que 
 - `id`
 - `slug`
 - `name`
+- `city`
+- `country`
+- `constructionYear`
+- `emoji`
 - `baseDescription`
 - `coordinates`
 - `testImageRef`
+- `visionAliases`
 - `expectedRiddle`
+- `answerOptions`
 - `correctAnswer`
 - `nextPointId`
 
@@ -41,6 +52,18 @@ Documento de referencia para dejar claro que significa hoy `integrations` y que 
 - `riddle`
 - `nextPointId`
 - `routeStatus`
+
+### `processPhotoDebug`
+
+- `requestId`
+- `matchedPointId`
+- `usedFallback`
+- `vision`
+- `canonicalPlace`
+- `promptInputs`
+- `promptOutputs`
+- `audio`
+- `finalProcessPhoto`
 
 ### `checkAnswer`
 
@@ -59,6 +82,15 @@ Documento de referencia para dejar claro que significa hoy `integrations` y que 
 - `unlockedPoints`
 - `routeStatus`
 
+## Reglas de integracion
+
+- `processPhoto` sigue siendo el endpoint estable de producto.
+- `processPhotoDebug` existe para Persona 3, QA y tuning de prompts.
+- `name`, `city`, `country`, `constructionYear` y `emoji` deben salir de `demo-data/`.
+- Vision no debe decidir por si sola la respuesta final de producto.
+- Gemini solo debe devolver bloques creativos y estructurados.
+- TTS solo debe sintetizar `audioGuideText`.
+
 ## Diseno objetivo del juego
 
 - `photoValidated` forma parte del sistema de puntuacion previsto, pero no esta activa todavia en el runtime actual.
@@ -69,24 +101,14 @@ Documento de referencia para dejar claro que significa hoy `integrations` y que 
 
 ## Contrato minimo de mapa
 
-- Por punto solo se congelan `id`, `name` y `coordinates`.
-- Con eso debe poder mostrarse:
-  - ubicacion actual del usuario
-  - punto actual
-  - siguiente punto desbloqueado
-  - distancia aproximada
-
-## Discrepancias abiertas con backend
-
-- El backend actual no aplica `photoValidated`.
-- El backend actual no aplica `hintPenalty`.
-- El backend actual no guarda `routeId` en el progreso runtime.
-- Estas discrepancias no deben compensarse inventando campos nuevos en frontend.
+- Por punto se congelan como minimo `id`, `name` y `coordinates`.
+- La API key de mapa es independiente del backend y se configura como `VITE_GOOGLE_MAPS_API_KEY`.
 
 ## Revision manual recomendada
 
 - `GET /api/route`
 - `POST /api/process-photo`
+- `POST /api/process-photo-debug`
 - `POST /api/check-answer`
 - `GET /api/progress/:userId`
 - `POST /api/progress`

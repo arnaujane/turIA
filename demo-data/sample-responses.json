@@ -3,48 +3,76 @@
     "success": {
       "requestId": "demo-process-001",
       "pointId": "point-1",
-      "detectedPlace": "Sagrada Familia",
-      "confidence": 0.93,
+      "nextPointId": "point-2",
+      "routeStatus": "in_progress",
       "usedFallback": false,
-      "guideText": "Estas frente a la Sagrada Familia, uno de los grandes simbolos de Barcelona y una obra inseparable del imaginario de Antoni Gaudi. Sus torres y su fuerza visual la convierten en una apertura perfecta para esta ruta. Observa sus formas y preparate para seguir descubriendo como Gaudi transformo la ciudad.",
+      "place": {
+        "detectedPlace": "Sagrada Familia",
+        "name": "Sagrada Familia",
+        "confidence": 0.93,
+        "location": {
+          "city": "Barcelona",
+          "country": "Spain",
+          "constructionYear": "1882"
+        },
+        "emoji": "⛪"
+      },
+      "guide": {
+        "placeInfo": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona.",
+        "audioGuideText": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona."
+      },
       "audio": {
         "format": "mp3",
-        "url": "/mock-audio/point-1.mp3"
+        "url": "/mock-audio/point-1.mp3",
+        "generated": true
       },
       "riddle": {
-        "question": "¿Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+        "question": "Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
         "answerOptions": [
           "Antoni Gaudi",
-          "Pablo Picasso",
-          "Ildefons Cerda"
+          "Lluis Domenech i Montaner",
+          "Josep Puig i Cadafalch",
+          "Santiago Calatrava"
         ],
         "hint": "Es el nombre propio mas repetido en la ruta."
-      },
-      "nextPointId": "point-2",
-      "routeStatus": "in_progress"
+      }
     },
     "fallback": {
       "requestId": "demo-process-fallback-001",
       "pointId": "point-2",
-      "detectedPlace": "Casa Batllo",
-      "confidence": 0.0,
+      "nextPointId": "point-3",
+      "routeStatus": "in_progress",
       "usedFallback": true,
-      "guideText": "No se ha podido analizar la imagen con estabilidad, asi que usamos contenido de respaldo para continuar la demo en Casa Batllo. Estas ante una de las fachadas mas imaginativas de Barcelona, una parada clave para seguir la ruta de Gaudi sin romper el ritmo del juego.",
+      "place": {
+        "detectedPlace": "Casa Batllo",
+        "name": "Casa Batllo",
+        "confidence": 0.0,
+        "location": {
+          "city": "Barcelona",
+          "country": "Spain",
+          "constructionYear": "1904"
+        },
+        "emoji": "🏠"
+      },
+      "guide": {
+        "placeInfo": "No se ha podido analizar la imagen con estabilidad, asi que usamos contenido de respaldo para continuar la demo en Casa Batllo. Esta parada de Barcelona, Spain, iniciada en 1904, destaca por su fachada ondulada y por su relacion directa con el universo creativo de Gaudi. El flujo sigue vivo y el usuario puede continuar la ruta sin romper la experiencia.",
+        "audioGuideText": "No se ha podido analizar la imagen con estabilidad, asi que usamos contenido de respaldo para continuar la demo en Casa Batllo. Esta parada de Barcelona, Spain, iniciada en 1904, destaca por su fachada ondulada y por su relacion directa con el universo creativo de Gaudi. El flujo sigue vivo y el usuario puede continuar la ruta sin romper la experiencia."
+      },
       "audio": {
         "format": "mp3",
-        "url": "/mock-audio/fallback-point-2.mp3"
+        "url": "/mock-audio/fallback-point-2.mp3",
+        "generated": true
       },
       "riddle": {
-        "question": "¿En que paseo de Barcelona se encuentra la Casa Batllo dentro de esta ruta?",
+        "question": "En que paseo de Barcelona se encuentra la Casa Batllo dentro de esta ruta?",
         "answerOptions": [
           "Passeig de Gracia",
           "La Rambla",
-          "Avinguda Diagonal"
+          "Avinguda Diagonal",
+          "Gran Via de les Corts Catalanes"
         ],
         "hint": "Es una de las avenidas mas famosas del Eixample."
-      },
-      "nextPointId": "point-3",
-      "routeStatus": "in_progress"
+      }
     },
     "errors": {
       "invalidImage": {
@@ -54,6 +82,156 @@
       "placeNotDetected": {
         "code": "PLACE_NOT_DETECTED",
         "message": "No se ha podido detectar un punto de interes con suficiente confianza."
+      }
+    }
+  },
+  "processPhotoDebug": {
+    "success": {
+      "requestId": "demo-debug-001",
+      "matchedPointId": "point-1",
+      "usedFallback": false,
+      "vision": {
+        "detectedPlace": "Sagrada Familia",
+        "confidence": 0.93,
+        "labels": [
+          "Sagrada Familia",
+          "Barcelona",
+          "Gaudi"
+        ],
+        "ocrText": "",
+        "summary": "Posible coincidencia con Sagrada Familia en Barcelona, Spain."
+      },
+      "canonicalPlace": {
+        "name": "Sagrada Familia",
+        "city": "Barcelona",
+        "country": "Spain",
+        "constructionYear": "1882",
+        "emoji": "⛪"
+      },
+      "promptInputs": {
+        "guideTemplateFile": "guide-generation.md",
+        "riddleTemplateFile": "riddle-generation.md",
+        "variables": {
+          "locale": "es-ES",
+          "point_name": "Sagrada Familia",
+          "city": "Barcelona",
+          "country": "Spain",
+          "construction_year": "1882",
+          "emoji": "⛪",
+          "base_description": "La Sagrada Familia es el gran icono de Barcelona y el mejor punto de partida para una ruta sobre Antoni Gaudi.",
+          "correct_answer": "Antoni Gaudi",
+          "next_point_name": "Casa Batllo",
+          "vision_summary": "Posible coincidencia con Sagrada Familia en Barcelona, Spain.",
+          "vision_labels": "Sagrada Familia, Barcelona, Gaudi",
+          "vision_ocr": "",
+          "answer_options": "Antoni Gaudi | Lluis Domenech i Montaner | Josep Puig i Cadafalch | Santiago Calatrava"
+        }
+      },
+      "promptOutputs": {
+        "guide": {
+          "placeInfo": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona.",
+          "audioGuideText": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona."
+        },
+        "riddle": {
+          "question": "Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+          "answerOptions": [
+            "Antoni Gaudi",
+            "Lluis Domenech i Montaner",
+            "Josep Puig i Cadafalch",
+            "Santiago Calatrava"
+          ],
+          "correctAnswer": "Antoni Gaudi",
+          "hint": "Es el nombre propio mas repetido en la ruta."
+        }
+      },
+      "audio": {
+        "format": "mp3",
+        "url": "/mock-audio/point-1.mp3"
+      },
+      "frontendResponse": {
+        "requestId": "demo-debug-001",
+        "pointId": "point-1",
+        "nextPointId": "point-2",
+        "routeStatus": "in_progress",
+        "usedFallback": false,
+        "place": {
+          "detectedPlace": "Sagrada Familia",
+          "name": "Sagrada Familia",
+          "confidence": 0.93,
+          "location": {
+            "city": "Barcelona",
+            "country": "Spain",
+            "constructionYear": "1882"
+          },
+          "emoji": "⛪"
+        },
+        "guide": {
+          "placeInfo": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona.",
+          "audioGuideText": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona."
+        },
+        "audio": {
+          "format": "mp3",
+          "url": "/mock-audio/point-1.mp3",
+          "generated": true
+        },
+        "riddle": {
+          "question": "Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+          "answerOptions": [
+            "Antoni Gaudi",
+            "Lluis Domenech i Montaner",
+            "Josep Puig i Cadafalch",
+            "Santiago Calatrava"
+          ],
+          "hint": "Es el nombre propio mas repetido en la ruta."
+        }
+      },
+      "finalResult": {
+        "name": "Sagrada Familia",
+        "location": {
+          "city": "Barcelona",
+          "country": "Spain",
+          "constructionYear": "1882"
+        },
+        "emoji": "â›ª",
+        "placeInfo": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona.",
+        "audioGuideText": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona.",
+        "audioGenerated": true,
+        "audioFormat": "mp3",
+        "riddle": {
+          "question": "Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+          "answerOptions": [
+            "Antoni Gaudi",
+            "Lluis Domenech i Montaner",
+            "Josep Puig i Cadafalch",
+            "Santiago Calatrava"
+          ],
+          "correctAnswer": "Antoni Gaudi",
+          "hint": "Es el nombre propio mas repetido en la ruta."
+        }
+      },
+      "finalProcessPhoto": {
+        "requestId": "demo-debug-001",
+        "pointId": "point-1",
+        "detectedPlace": "Sagrada Familia",
+        "confidence": 0.93,
+        "usedFallback": false,
+        "guideText": "La Sagrada Familia, en Barcelona, Spain, iniciada en 1882, abre esta ruta como el gran icono de Gaudi en la ciudad. Sus torres, su silueta monumental y su mezcla de espiritualidad con fantasia visual la convierten en una parada perfecta para empezar la experiencia. Observa sus detalles y preparate para seguir descubriendo la huella de Gaudi por Barcelona.",
+        "audio": {
+          "format": "mp3",
+          "url": "/mock-audio/point-1.mp3"
+        },
+        "riddle": {
+          "question": "Que arquitecto esta asociado a la Sagrada Familia en esta ruta demo?",
+          "answerOptions": [
+            "Antoni Gaudi",
+            "Lluis Domenech i Montaner",
+            "Josep Puig i Cadafalch",
+            "Santiago Calatrava"
+          ],
+          "hint": "Es el nombre propio mas repetido en la ruta."
+        },
+        "nextPointId": "point-2",
+        "routeStatus": "in_progress"
       }
     }
   },

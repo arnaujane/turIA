@@ -106,10 +106,16 @@ async function main() {
       "id",
       "slug",
       "name",
+      "city",
+      "country",
+      "constructionYear",
+      "emoji",
       "baseDescription",
       "coordinates",
       "testImageRef",
+      "visionAliases",
       "expectedRiddle",
+      "answerOptions",
       "correctAnswer",
       "nextPointId"
     ];
@@ -121,6 +127,13 @@ async function main() {
     assert(isNonEmptyString(point.id), `${label}: id debe ser string no vacio`);
     assert(isNonEmptyString(point.slug), `${label}: slug debe ser string no vacio`);
     assert(isNonEmptyString(point.name), `${label}: name debe ser string no vacio`);
+    assert(isNonEmptyString(point.city), `${label}: city debe ser string no vacio`);
+    assert(isNonEmptyString(point.country), `${label}: country debe ser string no vacio`);
+    assert(
+      isNonEmptyString(point.constructionYear),
+      `${label}: constructionYear debe ser string no vacio`
+    );
+    assert(isNonEmptyString(point.emoji), `${label}: emoji debe ser string no vacio`);
     assert(
       isNonEmptyString(point.baseDescription),
       `${label}: baseDescription debe ser string no vacio`
@@ -132,6 +145,14 @@ async function main() {
     assert(
       isNonEmptyString(point.expectedRiddle),
       `${label}: expectedRiddle debe ser string no vacio`
+    );
+    assert(
+      Array.isArray(point.visionAliases) && point.visionAliases.length > 0,
+      `${label}: visionAliases debe ser un array con al menos un alias`
+    );
+    assert(
+      Array.isArray(point.answerOptions) && point.answerOptions.length === 4,
+      `${label}: answerOptions debe tener exactamente 4 opciones`
     );
     assert(
       isNonEmptyString(point.correctAnswer),
@@ -151,6 +172,22 @@ async function main() {
       `${label}: coordinates.lng debe ser numerico`
     );
     assert(!pointIds.has(point.id), `${label}: id duplicado "${point.id}"`);
+    assert(
+      point.answerOptions.includes(point.correctAnswer),
+      `${label}: answerOptions debe incluir correctAnswer`
+    );
+    assert(
+      new Set(point.answerOptions).size === point.answerOptions.length,
+      `${label}: answerOptions no puede tener duplicados`
+    );
+
+    for (const alias of point.visionAliases) {
+      assert(isNonEmptyString(alias), `${label}: visionAliases contiene un alias vacio`);
+    }
+
+    for (const option of point.answerOptions) {
+      assert(isNonEmptyString(option), `${label}: answerOptions contiene una opcion vacia`);
+    }
 
     pointIds.add(point.id);
   }
@@ -302,20 +339,56 @@ async function main() {
       "sample-responses.json: processPhoto.success.requestId debe ser string no vacio"
     );
     assert(
-      isNonEmptyString(successResponse.detectedPlace),
-      "sample-responses.json: processPhoto.success.detectedPlace debe ser string no vacio"
+      isObject(successResponse.place),
+      "sample-responses.json: processPhoto.success.place debe ser un objeto"
     );
     assert(
-      isFiniteNumber(successResponse.confidence),
-      "sample-responses.json: processPhoto.success.confidence debe ser numerico"
+      isNonEmptyString(successResponse.place?.detectedPlace),
+      "sample-responses.json: processPhoto.success.place.detectedPlace debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(successResponse.place?.name),
+      "sample-responses.json: processPhoto.success.place.name debe ser string no vacio"
+    );
+    assert(
+      isFiniteNumber(successResponse.place?.confidence),
+      "sample-responses.json: processPhoto.success.place.confidence debe ser numerico"
+    );
+    assert(
+      isObject(successResponse.place?.location),
+      "sample-responses.json: processPhoto.success.place.location debe ser un objeto"
+    );
+    assert(
+      isNonEmptyString(successResponse.place?.location?.city),
+      "sample-responses.json: processPhoto.success.place.location.city debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(successResponse.place?.location?.country),
+      "sample-responses.json: processPhoto.success.place.location.country debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(successResponse.place?.location?.constructionYear),
+      "sample-responses.json: processPhoto.success.place.location.constructionYear debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(successResponse.place?.emoji),
+      "sample-responses.json: processPhoto.success.place.emoji debe ser string no vacio"
     );
     assert(
       typeof successResponse.usedFallback === "boolean",
       "sample-responses.json: processPhoto.success.usedFallback debe ser boolean"
     );
     assert(
-      isNonEmptyString(successResponse.guideText),
-      "sample-responses.json: processPhoto.success.guideText debe ser string no vacio"
+      isObject(successResponse.guide),
+      "sample-responses.json: processPhoto.success.guide debe ser un objeto"
+    );
+    assert(
+      isNonEmptyString(successResponse.guide?.placeInfo),
+      "sample-responses.json: processPhoto.success.guide.placeInfo debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(successResponse.guide?.audioGuideText),
+      "sample-responses.json: processPhoto.success.guide.audioGuideText debe ser string no vacio"
     );
     assert(
       isObject(successResponse.audio),
@@ -330,6 +403,10 @@ async function main() {
       "sample-responses.json: processPhoto.success.audio.url debe ser string no vacio"
     );
     assert(
+      typeof successResponse.audio?.generated === "boolean",
+      "sample-responses.json: processPhoto.success.audio.generated debe ser boolean"
+    );
+    assert(
       isObject(successResponse.riddle),
       "sample-responses.json: processPhoto.success.riddle debe ser un objeto"
     );
@@ -339,8 +416,8 @@ async function main() {
     );
     assert(
       Array.isArray(successResponse.riddle?.answerOptions) &&
-        successResponse.riddle.answerOptions.length === 3,
-      "sample-responses.json: processPhoto.success.riddle.answerOptions debe tener 3 opciones"
+        successResponse.riddle.answerOptions.length === 4,
+      "sample-responses.json: processPhoto.success.riddle.answerOptions debe tener 4 opciones"
     );
     assert(
       isNonEmptyString(successResponse.riddle?.hint),
@@ -362,20 +439,56 @@ async function main() {
       "sample-responses.json: processPhoto.fallback.requestId debe ser string no vacio"
     );
     assert(
-      isNonEmptyString(fallbackResponse.detectedPlace),
-      "sample-responses.json: processPhoto.fallback.detectedPlace debe ser string no vacio"
+      isObject(fallbackResponse.place),
+      "sample-responses.json: processPhoto.fallback.place debe ser un objeto"
     );
     assert(
-      isFiniteNumber(fallbackResponse.confidence),
-      "sample-responses.json: processPhoto.fallback.confidence debe ser numerico"
+      isNonEmptyString(fallbackResponse.place?.detectedPlace),
+      "sample-responses.json: processPhoto.fallback.place.detectedPlace debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.place?.name),
+      "sample-responses.json: processPhoto.fallback.place.name debe ser string no vacio"
+    );
+    assert(
+      isFiniteNumber(fallbackResponse.place?.confidence),
+      "sample-responses.json: processPhoto.fallback.place.confidence debe ser numerico"
+    );
+    assert(
+      isObject(fallbackResponse.place?.location),
+      "sample-responses.json: processPhoto.fallback.place.location debe ser un objeto"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.place?.location?.city),
+      "sample-responses.json: processPhoto.fallback.place.location.city debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.place?.location?.country),
+      "sample-responses.json: processPhoto.fallback.place.location.country debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.place?.location?.constructionYear),
+      "sample-responses.json: processPhoto.fallback.place.location.constructionYear debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.place?.emoji),
+      "sample-responses.json: processPhoto.fallback.place.emoji debe ser string no vacio"
     );
     assert(
       fallbackResponse.usedFallback === true,
       "sample-responses.json: processPhoto.fallback.usedFallback debe ser true"
     );
     assert(
-      isNonEmptyString(fallbackResponse.guideText),
-      "sample-responses.json: processPhoto.fallback.guideText debe ser string no vacio"
+      isObject(fallbackResponse.guide),
+      "sample-responses.json: processPhoto.fallback.guide debe ser un objeto"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.guide?.placeInfo),
+      "sample-responses.json: processPhoto.fallback.guide.placeInfo debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(fallbackResponse.guide?.audioGuideText),
+      "sample-responses.json: processPhoto.fallback.guide.audioGuideText debe ser string no vacio"
     );
     assert(
       isObject(fallbackResponse.audio),
@@ -390,6 +503,10 @@ async function main() {
       "sample-responses.json: processPhoto.fallback.audio.url debe ser string no vacio"
     );
     assert(
+      typeof fallbackResponse.audio?.generated === "boolean",
+      "sample-responses.json: processPhoto.fallback.audio.generated debe ser boolean"
+    );
+    assert(
       isObject(fallbackResponse.riddle),
       "sample-responses.json: processPhoto.fallback.riddle debe ser un objeto"
     );
@@ -399,8 +516,8 @@ async function main() {
     );
     assert(
       Array.isArray(fallbackResponse.riddle?.answerOptions) &&
-        fallbackResponse.riddle.answerOptions.length === 3,
-      "sample-responses.json: processPhoto.fallback.riddle.answerOptions debe tener 3 opciones"
+        fallbackResponse.riddle.answerOptions.length === 4,
+      "sample-responses.json: processPhoto.fallback.riddle.answerOptions debe tener 4 opciones"
     );
     assert(
       isNonEmptyString(fallbackResponse.riddle?.hint),
@@ -481,6 +598,127 @@ async function main() {
     assert(
       fallbackResponse.riddle?.answerOptions?.includes(fallbackPoint?.correctAnswer),
       "sample-responses.json: processPhoto.fallback.riddle.answerOptions debe incluir correctAnswer"
+    );
+  }
+
+  const debugResponse = sampleResponses.processPhotoDebug?.success;
+
+  assert(
+    isObject(sampleResponses.processPhotoDebug),
+    "sample-responses.json: falta processPhotoDebug"
+  );
+  assert(
+    isObject(debugResponse),
+    "sample-responses.json: falta processPhotoDebug.success"
+  );
+
+  if (debugResponse) {
+    assert(
+      isNonEmptyString(debugResponse.requestId),
+      "sample-responses.json: processPhotoDebug.success.requestId debe ser string no vacio"
+    );
+    assert(
+      pointIds.has(debugResponse.matchedPointId),
+      "sample-responses.json: processPhotoDebug.success.matchedPointId debe existir"
+    );
+    assert(
+      typeof debugResponse.usedFallback === "boolean",
+      "sample-responses.json: processPhotoDebug.success.usedFallback debe ser boolean"
+    );
+    assert(
+      isObject(debugResponse.vision),
+      "sample-responses.json: processPhotoDebug.success.vision debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.canonicalPlace),
+      "sample-responses.json: processPhotoDebug.success.canonicalPlace debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.promptInputs),
+      "sample-responses.json: processPhotoDebug.success.promptInputs debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.promptOutputs),
+      "sample-responses.json: processPhotoDebug.success.promptOutputs debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.audio),
+      "sample-responses.json: processPhotoDebug.success.audio debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.frontendResponse),
+      "sample-responses.json: processPhotoDebug.success.frontendResponse debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.finalProcessPhoto),
+      "sample-responses.json: processPhotoDebug.success.finalProcessPhoto debe ser un objeto"
+    );
+
+    assert(
+      isNonEmptyString(debugResponse.canonicalPlace.name),
+      "sample-responses.json: processPhotoDebug.success.canonicalPlace.name debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(debugResponse.canonicalPlace.city),
+      "sample-responses.json: processPhotoDebug.success.canonicalPlace.city debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(debugResponse.canonicalPlace.country),
+      "sample-responses.json: processPhotoDebug.success.canonicalPlace.country debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(debugResponse.canonicalPlace.constructionYear),
+      "sample-responses.json: processPhotoDebug.success.canonicalPlace.constructionYear debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(debugResponse.canonicalPlace.emoji),
+      "sample-responses.json: processPhotoDebug.success.canonicalPlace.emoji debe ser string no vacio"
+    );
+
+    assert(
+      isNonEmptyString(debugResponse.promptInputs.guideTemplateFile),
+      "sample-responses.json: processPhotoDebug.success.promptInputs.guideTemplateFile debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(debugResponse.promptInputs.riddleTemplateFile),
+      "sample-responses.json: processPhotoDebug.success.promptInputs.riddleTemplateFile debe ser string no vacio"
+    );
+    assert(
+      isObject(debugResponse.promptInputs.variables),
+      "sample-responses.json: processPhotoDebug.success.promptInputs.variables debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.promptOutputs.guide),
+      "sample-responses.json: processPhotoDebug.success.promptOutputs.guide debe ser un objeto"
+    );
+    assert(
+      isObject(debugResponse.promptOutputs.riddle),
+      "sample-responses.json: processPhotoDebug.success.promptOutputs.riddle debe ser un objeto"
+    );
+    assert(
+      isNonEmptyString(debugResponse.promptOutputs.guide.placeInfo),
+      "sample-responses.json: processPhotoDebug.success.promptOutputs.guide.placeInfo debe ser string no vacio"
+    );
+    assert(
+      isNonEmptyString(debugResponse.promptOutputs.guide.audioGuideText),
+      "sample-responses.json: processPhotoDebug.success.promptOutputs.guide.audioGuideText debe ser string no vacio"
+    );
+    assert(
+      Array.isArray(debugResponse.promptOutputs.riddle.answerOptions) &&
+        debugResponse.promptOutputs.riddle.answerOptions.length === 4,
+      "sample-responses.json: processPhotoDebug.success.promptOutputs.riddle.answerOptions debe tener 4 opciones"
+    );
+    assert(
+      isNonEmptyString(debugResponse.promptOutputs.riddle.correctAnswer),
+      "sample-responses.json: processPhotoDebug.success.promptOutputs.riddle.correctAnswer debe ser string no vacio"
+    );
+    assert(
+      pointIds.has(debugResponse.finalProcessPhoto.pointId),
+      "sample-responses.json: processPhotoDebug.success.finalProcessPhoto.pointId debe existir"
+    );
+    assert(
+      pointIds.has(debugResponse.frontendResponse.pointId),
+      "sample-responses.json: processPhotoDebug.success.frontendResponse.pointId debe existir"
     );
   }
 
